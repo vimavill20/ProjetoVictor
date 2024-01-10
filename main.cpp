@@ -14,8 +14,8 @@ using namespace cv;
 using namespace std;
 int main (){
     std::cout<<"OpenCV VERSION "<< CV_VERSION <<std::endl;
-    //Hola
-    Mat src =cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/SpiderTest2.jpeg",cv::IMREAD_GRAYSCALE);// cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor/blackAndWhiteTEST.png",cv::IMREAD_GRAYSCALE);
+    //Hola MUNDO
+    Mat src =cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/blackAndWhiteTEST.png",cv::IMREAD_GRAYSCALE);// cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor/blackAndWhiteTEST.png",cv::IMREAD_GRAYSCALE);
     if (src.empty()) {
             std::cout << "Error: la imagen no se pudo cargar." << std::endl;
             return -1;
@@ -39,10 +39,20 @@ int main (){
             Scalar colorverde(0,0,255 );
             drawContours( dst, contours, idx, colorverde, 1.5, 8, hierarchy );
         }
-        namedWindow( "Recognized Image", 1 );
-        imshow( "Recognized Image", dst );
-        waitKey(0);
-
+        
+    for(size_t i = 0; i < contours.size(); i++)
+    {
+        // Itera a través de cada punto en el contorno
+        for(size_t j = 0; j < contours[i].size(); j++)
+        {
+            // Imprime las coordenadas del punto
+            std::cout << "Contorno " << i << ", Punto " << j << ": "
+                      << contours[i][j] << std::endl;
+        }
+    }
+    namedWindow( "Recognized Image", 1 );
+    imshow( "Recognized Image", dst );
+    waitKey(0);
 // MALHA HOMOGENEA USANDO NEOPZ
 //    int nx=10;
 //    int ny=10;
