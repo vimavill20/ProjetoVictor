@@ -7,52 +7,91 @@
 #include "TPZRefPattern.h"
 #include "TPZGenGrid2D.h"
 #include "TPZVTKGeoMesh.h"
+#include <gmsh.h>
+#include <fstream>
+
 //using std::cout;
 //using std::endl;
 //using std::cin;
 using namespace cv;
 using namespace std;
-int main (){
-    std::cout<<"OpenCV VERSION "<< CV_VERSION <<std::endl;
-    //Hola MUNDO
-    Mat src =cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/blackAndWhiteTEST.png",cv::IMREAD_GRAYSCALE);// cv::imread("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor/blackAndWhiteTEST.png",cv::IMREAD_GRAYSCALE);
+void generarMalla(std::string nombreArchivo, double L, double lc) {
+    gmsh::initialize();
+    gmsh::model::add(nombreArchivo);
+    
+    // Se crean los puntos
+    int p1 = gmsh::model::geo::addPoint(0, 0, 0, lc);
+    int p2 = gmsh::model::geo::addPoint(L, 0, 0, lc);
+    int p3 = gmsh::model::geo::addPoint(L, L, 0, lc);
+    int p4 = gmsh::model::geo::addPoint(0, L, 0, lc);
+    
+    // Se crean las lineas
+    int l1 = gmsh::model::geo::addLine(p1, p2);
+    int l2 = gmsh::model::geo::addLine(p2, p3);
+    int l3 = gmsh::model::geo::addLine(p3, p4);
+    int l4 = gmsh::model::geo::addLine(p4, p1);
+    
+    // Se crean las curvas
+    int cl = gmsh::model::geo::addCurveLoop({l1, l2, l3, l4});
+    
+    // Se crean las superficies
+    int pl = gmsh::model::geo::addPlaneSurface({cl});
+    gmsh::model::geo::synchronize();
+    
+    // Configurar para generar malla de cuadrados
+    // gmsh::option::setNumber("Mesh.RecombineAll", 1);
+    
+    // Se genera la malla 2D
+    gmsh::model::mesh::generate(2);
+    gmsh::write(nombreArchivo + ".msh");
+    gmsh::finalize();
+}
+void procesarImagen(std::string rutaImagen) {
+    std::ofstream file("Coordenadas.txt");
+
+    file << "OpenCV VERSION " << CV_VERSION << std::endl;
+
+    Mat src = cv::imread(rutaImagen, cv::IMREAD_GRAYSCALE);
     if (src.empty()) {
-            std::cout << "Error: la imagen no se pudo cargar." << std::endl;
-            return -1;
-        }
-//    cvtColor(src, src, COLOR_BGR2GRAY);
+        file << "Error: la imagen no se pudo cargar." << std::endl;
+        return;
+    }
+
     Mat dst = Mat::zeros(src.rows, src.cols, CV_8UC3);
-        src = src > 1;
-        namedWindow( "Initial Image", 1 );
-        imshow( "Initial Image", src );
-        vector<vector<Point> > contours;
-        vector<Vec4i> hierarchy;
-        findContours( src, contours, hierarchy,
-            RETR_CCOMP, CHAIN_APPROX_SIMPLE );
-        // iterate through all the top-level contours,
-        // draw each connected component with its own random color
-        int idx = 0;
-        for( ; idx >= 0; idx = hierarchy[idx][0] )
-        {
-            Scalar color(255,255,255 );//rand()&255, rand()&255, rand()&255 );
-            drawContours( dst, contours, idx, color, FILLED, 8, hierarchy );
-            Scalar colorverde(0,0,255 );
-            drawContours( dst, contours, idx, colorverde, 1.5, 8, hierarchy );
-        }
-        
-    for(size_t i = 0; i < contours.size(); i++)
-    {
-        // Itera a través de cada punto en el contorno
-        for(size_t j = 0; j < contours[i].size(); j++)
-        {
-            // Imprime las coordenadas del punto
-            std::cout << "Contorno " << i << ", Punto " << j << ": "
-                      << contours[i][j] << std::endl;
+    src = src > 1;
+    namedWindow("Initial Image", 1);
+    imshow("Initial Image", src);
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    findContours(src, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
+
+    int idx = 0;
+    for(; idx >= 0; idx = hierarchy[idx][0]) {
+        Scalar color(255, 255, 255);
+        drawContours(dst, contours, idx, color, FILLED, 8, hierarchy);
+        Scalar colorverde(0, 0, 255);
+        drawContours(dst, contours, idx, colorverde, 1.5, 8, hierarchy);
+    }
+
+    for(size_t i = 0; i < contours.size(); i++) {
+        for(size_t j = 0; j < contours[i].size(); j++) {
+            file << "Contorno " << i << ", Punto " << j << ": " << contours[i][j] << std::endl;
         }
     }
-    namedWindow( "Recognized Image", 1 );
-    imshow( "Recognized Image", dst );
-    waitKey(0);
+
+    file.close();
+}
+
+
+int main (){
+    generarMalla("Malha_basica", 1.0, 0.1);
+    procesarImagen("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Aranha.png");
+    return 0;
+}
+
+
+//---------------------------------
 // MALHA HOMOGENEA USANDO NEOPZ
 //    int nx=10;
 //    int ny=10;
@@ -115,7 +154,3 @@ int main (){
 //
 //    std::ofstream file("victorTest2.vtk");
 //    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file);
-   
-
-    return 0;
-}
