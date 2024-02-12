@@ -1,14 +1,20 @@
 #include <iostream>
 #include <math.h>
+#include "pzcmesh.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "pzmanvector.h"
 #include "TPZGeoMeshTools.h"
+#include "TPZCompMeshTools.h"
 #include "TPZRefPattern.h"
 #include "TPZGenGrid2D.h"
 #include "TPZVTKGeoMesh.h"
+#include "pzvec.h"
 #include <gmsh.h>
 #include <fstream>
+#include "TPZMaterial.h"
+#include "TPZDarcyFlow.h"
+#include "TPZLinearAnalysis.h"
 
 //using std::cout;
 //using std::endl;
@@ -83,14 +89,141 @@ void procesarImagen(std::string rutaImagen) {
     file.close();
 }
 
+TPZGeoMesh* crearMallaHomogenea(int nx, int ny, double L, std::string nombreSalida) {
+    TPZVec<int> nels(3,0);
+    nels[0]=nx;         //Elements over x
+    nels[1]=ny;         //Elements over y
 
-int main (){
-    generarMalla("Malha_basica", 1.0, 0.1);
-    procesarImagen("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Aranha.png");
-    return 0;
+    TPZVec<REAL> x0(3,0.0);
+    TPZVec<REAL> x1(3,0.0);
+    x1[0]=L;
+    x1[1]=L;
+
+    TPZGeoMesh *gmesh = new TPZGeoMesh;
+    TPZGenGrid2D gen(nels,x0,x1);
+
+    gen.SetElementType(MMeshType::ETriangular);
+    gen.Read(gmesh);
+    gmesh->SetDimension(2);
+    gmesh->BuildConnectivity();
+
+    int Nnels = gmesh->NElements();
+    for (int iel=0; iel<Nnels; iel++) {
+        TPZGeoEl * gel = gmesh->Element(iel);
+        int nsides = gel->NSides();
+        int nodes = gel->NNodes();
+        int firstside = nodes;
+        for(int iside = firstside; iside<nsides-1; iside++){
+            TPZGeoElSide gelside(gel,iside);
+            int nneig = gelside.NNeighbours();
+            if(nneig==0){
+
+                int index1 = gelside.SideNodeIndex(0);
+                int index2 = gelside.SideNodeIndex(1);
+                auto node1 = gmesh->NodeVec()[index1];
+                auto node2 = gmesh->NodeVec()[index2];
+                double x_1 = node1.Coord(0);
+                double y_1 = node1.Coord(1);
+
+                double x_2 = node2.Coord(0);
+                double y_2 = node2.Coord(1);
+                if ((y_1 == y_2 && y_2 == 0.0) || (y_1 == y_2 && y_2 == L)) {
+                    gel->CreateBCGeoEl(iside, 2);
+                }
+                if ((x_1 == x_2 && x_2 == 0.0)) {
+                    gel->CreateBCGeoEl(iside, 3);
+                }
+                if ( (x_1 == x_2 && x_2 == L)) {
+                    gel->CreateBCGeoEl(iside, 4);
+                }
+            }
+        }
+    }
+    std::ofstream file(nombreSalida);
+    gmesh->Print(file);
+    return gmesh;
+//    std::ofstream file(nombreSalida);
+//    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file);
 }
 
 
+int main (){
+//    std::string nombreSalida = "malla.msh";
+//    std::string file_name="TriangleVictor.msh";
+        int nx=10;
+        int ny=10;
+        double L =1;
+        TPZVec<int> nels(3,0);
+        nels[0]=nx;         //Elements over x
+        nels[1]=ny;         //Elements over y
+    
+        TPZVec<REAL> x0(3,0.0);
+        TPZVec<REAL> x1(3,0.0);
+        x1[0]=L;
+        x1[1]=L;
+    
+        TPZGeoMesh *gmesh = new TPZGeoMesh;
+        TPZGenGrid2D gen(nels,x0,x1);
+    
+        gen.SetElementType(MMeshType::ETriangular);
+        gen.Read(gmesh);
+        gmesh->SetDimension(2);
+        gmesh->BuildConnectivity();
+    
+        int Nnels = gmesh->NElements();
+        for (int iel=0; iel<Nnels; iel++) {
+            TPZGeoEl * gel = gmesh->Element(iel);
+            int nsides = gel->NSides();
+            int nodes = gel->NNodes();
+            int firstside = nodes;
+            for(int iside = firstside; iside<nsides-1; iside++){
+                TPZGeoElSide gelside(gel,iside);
+                int nneig = gelside.NNeighbours();
+                if(nneig==0){
+    
+                    int index1 = gelside.SideNodeIndex(0);
+                    int index2 = gelside.SideNodeIndex(1);
+                    auto node1 = gmesh->NodeVec()[index1];
+                    auto node2 = gmesh->NodeVec()[index2];
+                    double x_1 = node1.Coord(0);
+                    double y_1 = node1.Coord(1);
+    
+                    double x_2 = node2.Coord(0);
+                    double y_2 = node2.Coord(1);
+                    if ((y_1 == y_2 && y_2 == 0.0) || (y_1 == y_2 && y_2 == L)) {
+                        gel->CreateBCGeoEl(iside, 2);
+                    }
+                    if ((x_1 == x_2 && x_2 == 0.0)) {
+                        gel->CreateBCGeoEl(iside, 3);
+                    }
+                    if ( (x_1 == x_2 && x_2 == L)) {
+                        gel->CreateBCGeoEl(iside, 4);
+                    }
+                }
+            }
+    
+    
+        }
+    
+    
+//        gmesh->Print(std::cout);
+    TPZCompMesh *cmesh= new TPZCompMesh(gmesh);
+    cmesh->ApproxSpace().SetAllCreateFunctionsContinuous();
+    TPZMaterial *mat;
+    int dim=2;
+    int order=1;
+//    TPZDarcyFlow(mat,dim) ;
+    cmesh->InsertMaterialObject(mat);
+    cmesh->SetDimModel(dim);
+    cmesh->SetDefaultOrder(order);
+    cmesh->AutoBuild();
+  
+//    TPZLinearAnalysis
+    return 0;
+}
+
+//generarMalla("Malha_basica", 1.0, 0.1);
+//    procesarImagen("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Aranha.png");
 //---------------------------------
 // MALHA HOMOGENEA USANDO NEOPZ
 //    int nx=10;
