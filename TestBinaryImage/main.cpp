@@ -63,7 +63,7 @@ int main (){
     }
 
     std::cout << std::endl;
-    cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample000.tif", cv::IMREAD_COLOR);
+    cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample000.tif", cv::IMREAD_GRAYSCALE);
     
             if (img.empty()) {
                 std::cout << "No se pudo abrir la imagen\n";
@@ -73,7 +73,8 @@ int main (){
             for (int i = 0; i < 1; ++i) {
                 for (int j = 0; j < 50; ++j) {
                     // Convertir cada píxel a binario y imprimirlo
-                    std::cout << (int)img.at<uchar>(i, j) << ' ';
+                    std::cout << std::bitset<1>(img.at<uchar>(i, j))<< ' ';
+//                    std::cout << (int)img.at<uchar>(i, j) << ' ';
                 }
                 std::cout << '\n';
             }
