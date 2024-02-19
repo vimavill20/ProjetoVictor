@@ -2,14 +2,13 @@
 
 cmake_minimum_required (VERSION 3.11.0)
 
-#project (MyProject)
 
-add_executable(TestOpenCV main.cpp)
+add_executable(TestBinaryImage main.cpp)
 
 # ----- Find PZ. By default searches one directory up -----
 find_package(NeoPZ REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../neopz_install/ ${CMAKE_SOURCE_DIR}/neopz_install/)
 
-find_package(OpenCV REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../opencv/ ${CMAKE_SOURCE_DIR}/opencv/)
+find_package(OpenCV REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../opencv_install/ ${CMAKE_SOURCE_DIR}/opencv_install/)
 
 #find_package(Gmsh REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../gmsh_install/ ${CMAKE_SOURCE_DIR}/gmsh_install/)
 
@@ -34,24 +33,17 @@ if(NOT GMSH_INC)
   message(FATAL_ERROR "Could not find gmsh.h")
 endif()
 include_directories(${GMSH_INC})
-# find OpenCV package
-find_package(OpenCV REQUIRED)
 
-# include OpenCV headers
-include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(All_Dirs  NeoPZ::pz ${OpenCV_LIBS}  ${OpenCV_INCLUDE_DIRS} ${GMSH_INC} ${CMAKE_CURRENT_SOURCE_DIR} )
-set(All_Dirs   ${OpenCV_LIBS} ${OpenCV_INCLUDE_DIRS} ${GMSH_INC} ${CMAKE_CURRENT_SOURCE_DIR} )
+#set(All_Dirs   ${OpenCV_LIBS} ${OpenCV_INCLUDE_DIRS} ${GMSH_INC} ${CMAKE_CURRENT_SOURCE_DIR} )
 
 
 #add_executable(TestGmsh1 main1.cpp) # Cambia esta línea
 
 
-#target_link_libraries(TestOpenCV PUBLIC NeoPZ::pz ${OpenCV_LIBS})
+#target_link_libraries(TestVictor PUBLIC NeoPZ::pz ${OpenCV_LIBS})
 
-target_include_directories(TestOpenCV PUBLIC All_Dirs)
-target_link_libraries(TestOpenCV PUBLIC NeoPZ::pz ${OpenCV_LIBS} ${GMSH_LIB})
-
-
-
-#target_include_directories(TestOpenCV PUBLIC ${PZ_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+target_include_directories(TestBinaryImage PUBLIC All_Dirs)
+target_link_libraries(TestBinaryImage PUBLIC NeoPZ::pz ${OpenCV_LIBS} ${GMSH_LIB})
+#target_include_directories(TestBinaryImag PUBLIC ${PZ_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})

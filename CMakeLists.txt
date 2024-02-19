@@ -9,3 +9,5 @@ project (MyProject)
 
 add_subdirectory(TestNeoPz)
 add_subdirectory(TestOpenCV)
+add_subdirectory(TestBinaryImage)
+
