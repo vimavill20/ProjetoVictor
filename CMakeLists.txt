@@ -8,6 +8,9 @@ project (MyProject)
 
 
 add_subdirectory(TestNeoPz)
+add_subdirectory(VisualMatVtkPZ)
 add_subdirectory(TestOpenCV)
 add_subdirectory(TestBinaryImage)
+add_subdirectory(TestBinaryImage3D)
+
 

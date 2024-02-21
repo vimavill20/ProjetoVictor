@@ -10,13 +10,15 @@
 #include "TPZGenGrid2D.h"
 #include "TPZVTKGeoMesh.h"
 #include "pzvec.h"
-#include "TPZEigenSolver"
+#include "pzvisualmatrix.h"
+//#include "TPZEigenSolver"
 #include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
 #include "TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
+
 
 //using std::cout;
 //using std::endl;
@@ -148,49 +150,67 @@ TPZGeoMesh* crearMallaHomogenea(int nx, int ny, double L, std::string nombreSali
 //    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file);
 }
 //function to make a darcy test
-void DarcyTest(){
-    //Creating a geometric mesh
-    TPZGeoMesh *gmesh = new TPZGeoMesh;
-    TPZManVector<REAL,3> x0(3,0.),x1(3,1.);
-    TPZManVector<int,3> nel(2,1);
-    nel[0] = 2;
-    nel[1] = 2;
-    TPZGenGrid gengrid(nel,x0,x1);
-    gengrid.SetElementType(MMeshType::ETriangular);
-    gengrid.Read(gmesh);
-    gmesh->SetDimension(2);
-    gmesh->BuildConnectivity();
-    //Creating a computational mesh
-    TPZCompMesh *cmesh = new TPZCompMesh(gmesh);
-    //Creating a material
-    TPZDarcyFlow *material = new TPZDarcyFlow(1);
-    cmesh->InsertMaterialObject(material);
-    //Creating a boundary condition
-    TPZFMatrix<STATE> val1(1,1,0.),val2(1,1,0.);
-    TPZBndCond *bc = material->CreateBC(material, -1, 0, val1, val2);
-    cmesh->InsertMaterialObject(bc);
-    //Creating a computational element
-    cmesh->AutoBuild();
-    cmesh->AdjustBoundaryElements();
-    cmesh->CleanUpUnconnectedNodes();
-    //Solving the system
-    TPZAnalysis an(cmesh);
-    TPZSkylineStructMatrix skyl(cmesh);
-    an.SetStructuralMatrix(skyl);
-    TPZStepSolver<STATE> step;
-    step.SetDirect(ELDLt);
-    an.SetSolver(step);
-    an.Run();
-    //Post processing
-    TPZStack<std::string> scalnames,vecnames;
-    scalnames.Push("Pressure");
-    vecnames.Push("Flux");
-    std::string plotfile("DarcyTest.vtk");
-    an.DefineGraphMesh(2,scalnames,vecnames,plotfile);
-    an.PostProcess(0);
-}
+//void DarcyTest(){
+//    //Creating a geometric mesh
+//    TPZGeoMesh *gmesh = new TPZGeoMesh;
+//    TPZManVector<REAL,3> x0(3,0.),x1(3,1.);
+//    TPZManVector<int,3> nel(2,1);
+//    nel[0] = 2;
+//    nel[1] = 2;
+//    TPZGenGrid gengrid(nel,x0,x1);
+//    gengrid.SetElementType(MMeshType::ETriangular);
+//    gengrid.Read(gmesh);
+//    gmesh->SetDimension(2);
+//    gmesh->BuildConnectivity();
+//    //Creating a computational mesh
+//    TPZCompMesh *cmesh = new TPZCompMesh(gmesh);
+//    //Creating a material
+//    TPZDarcyFlow *material = new TPZDarcyFlow(1);
+//    cmesh->InsertMaterialObject(material);
+//    //Creating a boundary condition
+//    TPZFMatrix<STATE> val1(1,1,0.),val2(1,1,0.);
+//    TPZBndCond *bc = material->CreateBC(material, -1, 0, val1, val2);
+//    cmesh->InsertMaterialObject(bc);
+//    //Creating a computational element
+//    cmesh->AutoBuild();
+//    cmesh->AdjustBoundaryElements();
+//    cmesh->CleanUpUnconnectedNodes();
+//    //Solving the system
+//    TPZAnalysis an(cmesh);
+//    TPZSkylineStructMatrix skyl(cmesh);
+//    an.SetStructuralMatrix(skyl);
+//    TPZStepSolver<STATE> step;
+//    step.SetDirect(ELDLt);
+//    an.SetSolver(step);
+//    an.Run();
+//    //Post processing
+//    TPZStack<std::string> scalnames,vecnames;
+//    scalnames.Push("Pressure");
+//    vecnames.Push("Flux");
+//    std::string plotfile("DarcyTest.vtk");
+//    an.DefineGraphMesh(2,scalnames,vecnames,plotfile);
+//    an.PostProcess(0);
+//}
 int main (){
     
+    TPZFMatrix<double> matrix(3, 3); // Crear una matriz 3x3
+    matrix(1,1)=1.0;
+    std::cout<<matrix<<std::endl;
+    for (int v=0;v<matrix.Rows();v++){
+        for(int c=0;c<matrix.Cols();c++){
+            if(v==c){
+                matrix(v,c) = 0.0; // 
+            }
+            else{
+            matrix(v,c) = 1.0; //
+            }
+        }
+    }
+    std::cout<<"MATRIZ NUEVA"<<std::endl;
+    std::cout<<matrix<<std::endl;
+    std::string outfilename = "outputMatrixPZ.vtk"; // Nombre del archivo de salida
+    VisualMatrixVTK(matrix, outfilename); // Llamar a la función
+  
     return 0;
 }
 //    std::string nombreSalida = "malla.msh";
@@ -275,13 +295,12 @@ int main (){
 //    cmesh->Print();
 //    std::ofstream file1("cmesh_h.txt");
 //    cmesh->Print(file1);
-    return 0;
 //    TPZVTKGeoMesh
     //    TPZLinearAnalysis
 //    TPZLinearAnalysis cmsh;
 //    TPZPrint
 //    return 0;
-}
+
 
 //generarMalla("Malha_basica", 1.0, 0.1);
 //    procesarImagen("/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Aranha.png");
