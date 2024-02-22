@@ -24,48 +24,32 @@
 #include "TPZExtendGridDimension.h"
 #include "pzvisualmatrix.h"
 
-typedef unsigned char BYTE;
-std::vector<BYTE> readFile(const char* filename)
-{
-    // open the file:
-    std::streampos fileSize;
-    std::ifstream file(filename, std::ios::binary);
 
-    // get its size:
-    file.seekg(0, std::ios::end);
-    fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
+//CODIGO PARA OBTENER LOS BITS EN UN TXT DE UNA IMAGEN .TIF
 
-    // read the data:
-    std::vector<BYTE> fileData(fileSize);
-    file.read((char*) &fileData[0], fileSize);
-    return fileData;
-}
 int main (){
-//
+  
+    std::ofstream outFile("Sample0.txt");
+    std::cout << std::endl;
+    cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample000.tif", cv::IMREAD_GRAYSCALE);
+    
+            if (img.empty()) {
+                std::cout << "No se pudo abrir la imagen\n";
+                return -1;
+            }
+            std::cout << "rows " << img.rows << " cols " << img.cols << std::endl;
+            for (int i = 0; i < img.rows; ++i) {
+                for (int j = 0; j < img.cols; ++j) {
+                    // Convertir cada píxel a binario y imprimirlo
+                    outFile << std::bitset<1>(img.at<uchar>(i, j))<< ' ';
+    //                    if ((i * img.cols + j + 1) % 676 == 0) {
+                                outFile << '\n';
+    //                            }
+    //                    std::cout << (int)img.at<uchar>(i, j) << ' ';
+                }
+                //std::cout << '\n';
+            }
+
 }
 
-//TPZVec<int> nx(2, 10);
-////What does it mean the line 46?
-//
-//nx[0]=5;
-//nx[1]=5;
-//const TPZVec<REAL> x0(3, 0.);
-//const TPZVec<REAL> x1(3, 0.);
-//x1[0]=1.0;
-//x1[1]=1.0;
-//auto msh = TPZGenGrid2D(nx, x0, x1);
-//
-//TPZGeoMesh *gmesh = new TPZGeoMesh;
-//
-//msh.Read(gmesh);
-//msh.SetElementType(MMeshType::EQuadrilateral);
-//std::ofstream file2("TestGeoMesh2D.vtk");
-//TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file2);
-//
-//REAL w= 0.2;
-//TPZExtendGridDimension extend(gmesh, w);
-//
-//auto gmsh3D = extend.ExtendedMesh(5);
-//std::ofstream file3("TestGeoMesh3D.vtk");
-//TPZVTKGeoMesh::PrintGMeshVTK(gmsh3D, file3);
+

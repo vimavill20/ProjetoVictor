@@ -23,23 +23,7 @@
 //#include "TPZMaterial.h"
 //#include "TPZDarcyFlow.h"
 //#include "TPZLinearAnalysis.h"
-typedef unsigned char BYTE;
-std::vector<BYTE> readFile(const char* filename)
-{
-    // open the file:
-    std::streampos fileSize;
-    std::ifstream file(filename, std::ios::binary);
-
-    // get its size:
-    file.seekg(0, std::ios::end);
-    fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    // read the data:
-    std::vector<BYTE> fileData(fileSize);
-    file.read((char*) &fileData[0], fileSize);
-    return fileData;
-}
+//
 // Función para crear una matriz binaria a partir de una imagen en escala de grises
 TPZFMatrix<double> create_binary_matrix(const cv::Mat& img) {
     // Obtener las dimensiones de la imagen
@@ -68,7 +52,7 @@ TPZFMatrix<double> create_binary_matrix(const cv::Mat& img) {
  //   std::cout<<matrix<<std::endl;
     return matrix;
 }
-
+//TPZ Funciont with initial changes to generate 3D files
 void VisualMatrixVTK(std::vector<TPZFMatrix<double>> & matrixVector, const std::string &outfilename)
 {
     for(int k = 0; k < matrixVector.size(); k++)
@@ -147,25 +131,4 @@ int main (){
   
     return 0;
 }
-//CODIGO PARA OBTENER EN UN TXT COORDENADAS DEL .TIF
-//std::ofstream outFile("Sample0.txt");
-//std::cout << std::endl;
-//cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample000.tif", cv::IMREAD_GRAYSCALE);
-//
-//        if (img.empty()) {
-//            std::cout << "No se pudo abrir la imagen\n";
-//            return -1;
-//        }
-//        std::cout << "rows " << img.rows << " cols " << img.cols << std::endl;
-//        for (int i = 0; i < img.rows; ++i) {
-//            for (int j = 0; j < img.cols; ++j) {
-//                // Convertir cada píxel a binario y imprimirlo
-//                outFile << std::bitset<1>(img.at<uchar>(i, j))<< ' ';
-////                    if ((i * img.cols + j + 1) % 676 == 0) {
-//                            outFile << '\n';
-////                            }
-////                    std::cout << (int)img.at<uchar>(i, j) << ' ';
-//            }
-//            //std::cout << '\n';
-//        }
 

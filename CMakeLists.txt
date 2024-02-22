@@ -4,11 +4,11 @@ cmake_minimum_required (VERSION 3.11.0)
 
 project (MyProject)
 
-#add_executable(TestVictor main.cpp)
+add_executable(TestVictor main.cpp)
 
 
 add_subdirectory(TestNeoPz)
-add_subdirectory(VisualMatVtkPZ)
+
 add_subdirectory(TestOpenCV)
 add_subdirectory(TestBinaryImage)
 add_subdirectory(TestBinaryImage3D)
