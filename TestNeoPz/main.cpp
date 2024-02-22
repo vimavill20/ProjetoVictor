@@ -25,7 +25,7 @@
 //using std::cin;
 using namespace cv;
 using namespace std;
-//Function to reconstruct 3d image on .vtk format using a TPZ vector of matrixs of 0 and 1
+//Function to reconstruct 3d image on .vtk format using a TPZ vector of matrixs
 void VisualMatrix3DVTK(TPZVec<TPZFMatrix<double>> & matrixVector, const std::string &outfilename)
 {
     const int nelz=matrixVector.size();
@@ -115,7 +115,7 @@ int main (){
     std::string common_name="/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Dados_TIF_10Layers/";
 
     std::vector<std::string> TIFnames;
-    int nsim=10;
+    int nsim=10;//only to visualize the first 10 layers of the rocks
     for (int i = 0; i < nsim; ++i) {
         std::ostringstream oss;
         oss << common_name << "Sample" << std::setw(3) <<std::setfill('0') << i << ".tif";
