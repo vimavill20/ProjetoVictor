@@ -17,7 +17,7 @@
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
-#include "TPZDarcyFlow.h"
+#include "DarcyFlow/TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
 #include "TestVTK3D.h"
 
@@ -113,7 +113,7 @@ TPZFMatrix<double> Case10TIF(AllSimulationData alldata, int idata){
 int main (){
     AllSimulationData test;
     
-    std::string common_name="/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2/Dados_TIF_10Layers/";
+    std::string common_name="/Users/philippedevloo/GitHub/CoreSampleResearch/ProjetoVictor/DADOS_TIF_10Layers/";
 
     std::vector<std::string> TIFnames;
     int nsim=10;//only to visualize the first 10 layers of the rocks
