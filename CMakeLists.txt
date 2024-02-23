@@ -24,7 +24,7 @@ find_package(OpenCV REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../opencv_install/ ${CMAK
 
 add_subdirectory(TIF3dVTK)
 
-add_subdirectory(TestNeoPz)
+#add_subdirectory(TestNeoPz)
 
 #add_subdirectory(TestOpenCV)
 #add_subdirectory(TestBinaryImage)

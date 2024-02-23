@@ -14,11 +14,10 @@
 #include "pzvec.h"
 //#include "pzvisualmatrix.h"
 //#include "TPZEigenSolver"
-#include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
-#include "TPZDarcyFlow.h"
+#include "DarcyFlow/TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
 
 class TestVTK3D
