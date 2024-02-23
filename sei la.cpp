@@ -1,4 +1,13 @@
-#include <fstream>
+//
+//  sei la.cpp
+//  sei la
+//
+//  Created by Victor Villegas salabarria on 23/02/24.
+//
+
+#include <stdio.h>
+
+//#include <fstream>
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
@@ -15,15 +24,15 @@
 #include "TPZVTKGeoMesh.h"
 #include "pzvec.h"
 //#include "TPZEigenSolver"
-//#include "gmsh.h"
+//#include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
-#include "DarcyFlow/TPZDarcyFlow.h"
+#include "TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
 #include "TPZExtendGridDimension.h"
 #include "pzvisualmatrix.h"
-
+//#include "TestVTK3D.h"
 using namespace cv;
 using namespace std;
 //FUNCION PARA CREAR UNA MATRIZ DE ARCHIVO BINARIO .RAW
@@ -113,6 +122,9 @@ int main (){
     TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
     std::string outfilename ="RAWTest.vtk";
     VisualMatrix3DVTK(VecOfMat, outfilename);
+  
+    
     return 0;
 }
+
 
