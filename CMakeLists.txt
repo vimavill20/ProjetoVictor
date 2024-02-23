@@ -7,10 +7,10 @@ project (MyProject)
 add_executable(TestVictor main.cpp)
 
 
-add_subdirectory(TestNeoPz)
+add_subdirectory(TIF3dVTK)
 
 add_subdirectory(TestOpenCV)
 add_subdirectory(TestBinaryImage)
-add_subdirectory(TestBinaryImage3D)
+add_subdirectory(Raw3dVTK)
 
 

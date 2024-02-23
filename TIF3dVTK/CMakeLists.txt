@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 3.11.0)
 
 
-add_executable(TestVictor main.cpp)
+add_executable(TestVTK3D TestVTK3D.cpp TestVTK3D.h)
 
 # ----- Find PZ. By default searches one directory up -----
 find_package(NeoPZ REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../neopz_install/ ${CMAKE_SOURCE_DIR}/neopz_install/)
@@ -44,6 +44,6 @@ set(All_Dirs  NeoPZ::pz ${OpenCV_LIBS}  ${OpenCV_INCLUDE_DIRS} ${GMSH_INC} ${CMA
 
 #target_link_libraries(TestVictor PUBLIC NeoPZ::pz ${OpenCV_LIBS})
 
-target_include_directories(TestVictor PUBLIC All_Dirs)
-target_link_libraries(TestVictor PUBLIC NeoPZ::pz ${OpenCV_LIBS} ${GMSH_LIB})
+target_include_directories(TestVTK3D PUBLIC All_Dirs)
+target_link_libraries(TestVTK3D PUBLIC NeoPZ::pz ${OpenCV_LIBS} ${GMSH_LIB})
 #target_include_directories(TestVictor PUBLIC ${PZ_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})

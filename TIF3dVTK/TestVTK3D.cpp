@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <math.h>
 #include "pzcmesh.h"
@@ -18,7 +19,7 @@
 #include "TPZMaterial.h"
 #include "TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
-
+#include "TestVTK3D.h"
 
 //using std::cout;
 //using std::endl;
@@ -136,4 +137,4 @@ int main (){
     VisualMatrix3DVTK(Vecmat10, outfilename);
     return 0;
 }
-    
+

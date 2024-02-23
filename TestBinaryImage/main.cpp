@@ -9,7 +9,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "pzmanvector.h"
 #include "pzvisualmatrix.h"
-
+#include "TestVTK3D.h"
 //#include "TPZGeoMeshTools.h"
 //#include "TPZCompMeshTools.h"
 //#include "TPZRefPattern.h"
