@@ -2,7 +2,7 @@
 
 
 
-add_executable(TestBinaryImage3D main.cpp)
+add_executable(TestBinaryImage3D main.cpp EditImage.cpp EditImage.h)
 
 
 set(All_Dirs  NeoPZ::pz  ${OpenCV_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} )

@@ -15,14 +15,14 @@
 #include "TPZVTKGeoMesh.h"
 #include "pzvec.h"
 //#include "TPZEigenSolver"
-#include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
-#include "TPZDarcyFlow.h"
+#include "DarcyFlow/TPZDarcyFlow.h"
 #include "TPZLinearAnalysis.h"
 #include "TPZExtendGridDimension.h"
 #include "pzvisualmatrix.h"
+#include "EditImage.h"
 //#include "TestVTK3D.h"
 using namespace cv;
 using namespace std;

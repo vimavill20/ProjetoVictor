@@ -28,6 +28,6 @@ add_subdirectory(TIF3dVTK)
 
 #add_subdirectory(TestOpenCV)
 #add_subdirectory(TestBinaryImage)
-add_subdirectory(TestBinaryImage3D)
+add_subdirectory(RAW3dVTK)
 
 

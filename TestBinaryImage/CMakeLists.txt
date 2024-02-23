@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 3.11.0)
 
 
-add_executable(TestBinaryImage main.cpp EditImage.cpp EditImage.h)
+add_executable(TestBinaryImage main.cpp)
 
 
 set(All_Dirs  NeoPZ::pz ${OpenCV_LIBS}  ${OpenCV_INCLUDE_DIRS} ${GMSH_INC} ${CMAKE_CURRENT_SOURCE_DIR} )
