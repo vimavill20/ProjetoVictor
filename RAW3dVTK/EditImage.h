@@ -8,11 +8,27 @@
 
 class Image3D {
 public:
-    Image3D(int depth, int width, int height)
-        : depth(depth), width(width), height(height), data(depth, TPZFMatrix<REAL>(width, height)) {}
+    Image3D(const std::string &varname, int depth, int width, int height)
+        : depth(depth), width(width), height(height), varname(varname), data(depth, TPZFMatrix<REAL>(width, height)) {}
+
+    Image3D(const Image3D& other) {
+        varname = other.varname;
+        depth = other.depth;
+        width = other.width;
+        height = other.height;
+        data = other.data;  // Assumes Matrix class has a working copy constructor.
+    }
+
+    Image3D(const std::string &varname, TPZVec<TPZFMatrix<REAL> > &input) : varname(varname){
+        depth = input.size();
+        width = input[0].Rows();
+        height = input[0].Cols();
+        data = input;
+    }
     // Overload the assignment operator.
     Image3D& operator=(const Image3D& other) {
         if (this != &other) {
+            varname = other.varname;
             depth = other.depth;
             width = other.width;
             height = other.height;
@@ -21,12 +37,22 @@ public:
         return *this;
     }
 
+    int Depth() const { return depth; }
+    int Width() const { return width; }
+    int Height() const { return height; }
+
+    std::string VarName() const { return varname; }
+
+    void SetVarName(const std::string &varname) {
+        this->varname = varname;
+    }
+
     int getPixel(int x, int y, int z) const {
-        return data[z](x, y);
+        return data[x](y, z);
     }
 
     void setPixel(int x, int y, int z, int value) {
-        data[z].PutVal(x, y, value);
+        data[x].PutVal(y, z, value);
     }
 
     void applyFilter(const TPZFMatrix<REAL>& filter) {
@@ -35,12 +61,16 @@ public:
         }
     }
 
-    void identifyObjects(Image3D& output);
+    // returns the number of identified objects.
+    int identifyObjects(Image3D& output);
 
+    /// order the objects by size
+    void orderObjectsBySize(Image3D& output, int numcolors);
 private:
     int depth;
     int width;
     int height;
+    std::string varname;
     TPZVec<TPZFMatrix<REAL>> data;
 
     static void InsertSurroundingPixels(const Image3D& input, Image3D& output, int x, int y, int z, int value);
