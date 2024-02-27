@@ -99,7 +99,7 @@ void Image3D::orderObjectsBySize(Image3D& output, int numcolors)
         objectsinrange[j]++;
     }
     
-    std::cout << "objectsinrange:" << std::endl;
+    std::cout << "objectsinrange: " << std::endl;
     for (const auto& pair : objectsinrange) {
         std::cout << "number of objects smaller than " << (2 << 2*pair.first) << ": " << pair.second << std::endl;
 
