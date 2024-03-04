@@ -16,9 +16,12 @@
 #include "TPZMaterial.h"
 #include "TPZDarcyFlow.h"
 #include "TPZSkylineNSymStructMatrix.h"
+#include "TPZNullMaterialCS.h"
+#include "TPZNullMaterial.h"
 //#include "TPZAnalysis.h"
 #include "pzstepsolver.h"
 #include "TPZLinearAnalysis.h"
+#include "TPZSSpStructMatrix.h"
 //#include "TPZStepSolver.h"
 //using std::cout;
 //using std::endl;
@@ -183,29 +186,130 @@ cv::Mat readRawFile(const std::string& filename, int width, int height) {
 
 
 int main (){
-    cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample908.tif", cv::IMREAD_COLOR);
+    TPZVec<int> nx(2, 10);
+    //What does it mean the line 46?
+    
+    nx[0]=3;
+    nx[1]=1;
+    const TPZVec<REAL> x0(3, 0.);
+    const TPZVec<REAL> x1(3, 0.);
+    x1[0]=1.0;
+    x1[1]=1.0;
+    auto msh = TPZGenGrid2D(nx, x0, x1);
+    
+    TPZGeoMesh *gmesh = new TPZGeoMesh;
+    
+    msh.Read(gmesh);
+    msh.SetElementType(MMeshType::EQuadrilateral);
+    
+    msh.SetBC(gmesh, 7, 2);
+    msh.SetBC(gmesh, 5, 3);
+    msh.SetBC(gmesh, 4, 4);
+    msh.SetBC(gmesh, 6, 4);
+    std::ofstream file2("TestGeoMesh2D.vtk");
+    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file2);
+    
+    //Create CompMesh
+    TPZCompMesh *cmesh =  new TPZCompMesh(gmesh);
+    
+    //Create Materials
+    int matId=1;
+    int dim = 2;
+    TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim);
+    
+    cmesh->InsertMaterialObject(matDarcy);
+    int bc_id=2;
+    int bc_typeN = 0;
+    int bc_typeD = 1;
+    TPZFMatrix<STATE> val1(1,1,0.0);
+    TPZVec<STATE> val2(1,0.0);
+    
+   
+    TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,4,bc_typeN,val1,val2);
+    cmesh->InsertMaterialObject(face2);
+    
+    val1(0,0)=10;
+    TPZBndCond * face = matDarcy->CreateBC(matDarcy,2,bc_typeD,val1,val2);
+    cmesh->InsertMaterialObject(face);
+    
+    val1(0,0)=5;
+    TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,3,bc_typeD,val1,val2);
+    cmesh->InsertMaterialObject(face1);
+    
+   
+    cmesh->AutoBuild();
+    cmesh->ApproxSpace().SetAllCreateFunctionsContinuous();
+    cmesh->ExpandSolution();
+    
+    int nelsc = cmesh->NElements();
+    
+    //CreateAnalisys
+    
+    TPZLinearAnalysis *Analisys = new TPZLinearAnalysis(cmesh);
+    bool mustOptimizeBandwidth = false;
+   
+    
+   
+    
+    Analisys->LoadSolution();
+    
+    TPZSSpStructMatrix<STATE> matrix(cmesh);
+    matrix.SetNumThreads(8);
+   // Analisys->SetStructuralMatrix(matrix);
+    TPZStepSolver<STATE> step;
+    step.SetDirect(ELDLt);
+    Analisys->SetSolver(step);
+    
+    Analisys->Assemble();
+    Analisys->Solve();
+    auto solu = Analisys->Solution();
+    solu.Print("test.txt");
+    int nrows=Analisys->Solution().Rows();
+    for(int irow=0; irow<nrows; irow++){
+       // Analisys->Solution().;
+        
+       
+       
+      //  std::cout<<Analisys->Solution(irow,0)<<std::endl;
+    }
+ 
+    std::ofstream sol("cmesh.txt");
+    cmesh->Print(sol);
+   
+    int ok=0;
+    //
+    //REAL w= 0.2;
+    //TPZExtendGridDimension extend(gmesh, w);
+    
+    //auto gmsh3D = extend.ExtendedMesh(5);
+    //std::ofstream file3("TestGeoMesh3D.vtk");
+    //TPZVTKGeoMesh::PrintGMeshVTK(gmsh3D, file3);
 
-       // Comprueba si la imagen se ha cargado correctamente
-       if(img.empty()) {
-           std::cout << "Error al abrir la imagen" << std::endl;
-           return -1;
-       }
 
-
-       // Binariza la imagen
-       cv::Mat img_binaria;
-//       cv::adaptiveThreshold(img, img_binaria, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 11, 2);
-       cv::cvtColor(img, img_binaria, cv::COLOR_BGR2GRAY);
-//       cv::threshold(img_binaria, img_binaria, 128, 255, cv::THRESH_BINARY);
-      cv::adaptiveThreshold(img_binaria, img_binaria, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 3, 3);
-
-
-
-       // Guarda la imagen binaria
-       cv::imwrite("/Users/victorvillegassalabarria/Downloads/908imagen_binaria.tif", img_binaria);
-    auto rutaImagen="/Users/victorvillegassalabarria/Downloads/908imagen_binaria.tif";
-//    auto rutaImagen="/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2_build/BinaryImage.png";
-    procesarImagen(rutaImagen);
-    return 0;
 }
+int mainfake(){
+cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample908.tif", cv::IMREAD_COLOR);
 
+   // Comprueba si la imagen se ha cargado correctamente
+   if(img.empty()) {
+       std::cout << "Error al abrir la imagen" << std::endl;
+       return -1;
+   }
+
+
+   // Binariza la imagen
+   cv::Mat img_binaria;
+//       cv::adaptiveThreshold(img, img_binaria, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 11, 2);
+   cv::cvtColor(img, img_binaria, cv::COLOR_BGR2GRAY);
+//       cv::threshold(img_binaria, img_binaria, 128, 255, cv::THRESH_BINARY);
+  cv::adaptiveThreshold(img_binaria, img_binaria, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 3, 3);
+
+
+
+   // Guarda la imagen binaria
+   cv::imwrite("/Users/victorvillegassalabarria/Downloads/908imagen_binaria.tif", img_binaria);
+auto rutaImagen="/Users/victorvillegassalabarria/Downloads/908imagen_binaria.tif";
+//    auto rutaImagen="/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2_build/BinaryImage.png";
+procesarImagen(rutaImagen);
+return 0;
+}

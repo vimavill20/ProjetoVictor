@@ -13,7 +13,7 @@
 #include "pzvec.h"
 //#include "pzvisualmatrix.h"
 //#include "TPZEigenSolver"
-#include <gmsh.h>
+//#include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
