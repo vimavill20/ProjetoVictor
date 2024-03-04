@@ -51,6 +51,7 @@ TPZVec<TPZFMatrix<double>> create_raw_Vecmatrix(std::string rutaArchivo, int fil
         }
     } else {
         std::cout << "Unable to open file";
+        DebugStop();
     }
 
     return Vectormatrix;
@@ -199,15 +200,31 @@ int main() {
 int mainfake (){
 //    std::string ImagenRaw="Sample_Labels_3D_RAW.raw";
     std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
-    int layers=30;
-    int rows=676;
-    int cols=616;
-    TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
-
+    
+    int layers=3;
+    int rows=5;//676;
+    int cols=5;//616;
+//    TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+    
+    TPZFMatrix<double> matrix(rows,cols);
+    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
+    for (int layer = 0; layer < layers; ++layer) {
+            for (int row = 0; row < rows; ++row) {
+                for (int col = 0; col < cols; ++col) {
+                    if(col==1||col==3){
+                        VecOfMat[layer](row,col) = 1;}
+                    
+                    else{
+                        VecOfMat[layer](row,col) = 0;}
+                }
+            }
+        }
+    std::cout<<VecOfMat<<std::endl;
     Image3D input("pixeldata",VecOfMat);
     Image3D output("objects",input.Depth(), input.Width(), input.Height());
     Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
     int count = input.identifyObjects(output);
+    std::cout << "Identified " << count << " objects." <<"\n"<< std::endl;
     output.orderObjectsBySize(ordered, count);
     std::cout << count << "\n";
     std::string outfilename ="RAWTest.vtk";
@@ -219,7 +236,47 @@ int mainfake (){
     AddDataVTK(output, outfilename1);
     std::cout << "adding ordered data to " << outfilename2 << "\n";
     AddDataVTK(ordered, outfilename2);
+//
+    //
+    int etiquetaObjeto = 0; // Puedes cambiar esto con la etiqueta del objeto que deseas analizar
+    int numPixeles = output.getPixelsInObject(etiquetaObjeto);
+    std::cout << "El objeto con etiqueta " << etiquetaObjeto << " tiene " << numPixeles << " píxeles." << std::endl;
+    int numPixeles1 = output.getPixelsInObject(1);
+    std::cout << "El objeto con etiqueta " << "1" << " tiene " << numPixeles1 << " píxeles." << std::endl;
+    int numberBuracos=0;
+
+    std::vector<int> ObjectsPixels(2,0);
+    for(int i=1;i<count+1;i++){
+        numPixeles=output.getPixelsInObject(i);
+        numberBuracos+=numPixeles;
+        numPixeles=0;
+    }
+    std::cout << "El numero  total de pixeles en objetos reconocidos es " << numberBuracos << std::endl;
+//
+    
+        // Imprimir el contenido del vector
+        std::cout << "Contenido del vector:" << std::endl;
+    TPZVec<double> VecPixelsbyObjects(count);
+    VecPixelsbyObjects= output.obtenerObjetosYPixeles(output, count);
+    //std::cout << VecPixelsbyObjects <<std::endl;
+    for (int i = 0; i < VecPixelsbyObjects.size(); i++) {
+        std::cout << "Objeto " << i << ", Píxeles " << VecPixelsbyObjects[i] << std::endl;
+        }
+   
+        // Call the countFacesByObject method
+
+   
+
+
+//
+    //output.countFacesByObject(facesCount, input);
+
     return 0;
 }
+
+
+
+
+
 
 

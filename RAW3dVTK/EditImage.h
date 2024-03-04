@@ -62,18 +62,22 @@ public:
     }
 
     // returns the number of identified objects.
-    int identifyObjects(Image3D& output);
+    int identifyObjects(Image3D& output)const;
 
     /// order the objects by size
     void orderObjectsBySize(Image3D& output, int numcolors);
+    void countFacesByObject(std::map<int, int>& facesCount) const;
+    int getPixelsInObject(int label)const;
+    TPZVec<double> obtenerObjetosYPixeles(const Image3D& ordered, const int numColors);
+    void countFacesByObject(std::map<int, int>& facesCount, const Image3D& Image) const;
+
 private:
     int depth;
     int width;
     int height;
     std::string varname;
     TPZVec<TPZFMatrix<REAL>> data;
-
+    
     static void InsertSurroundingPixels(const Image3D& input, Image3D& output, int x, int y, int z, int value);
 };
-
 #endif  // EDITIMAGE_H

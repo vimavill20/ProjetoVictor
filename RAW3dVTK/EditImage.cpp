@@ -36,26 +36,45 @@ void Image3D::InsertSurroundingPixels(const Image3D &input, Image3D &output, int
         }
     }
 }
-int Image3D::identifyObjects(Image3D& output) {
-    // Assume this method identifies objects in the 3D image and writes the result to the output image.
+//int Image3D::identifyObjects(Image3D& output)const {
+//    // Assume this method identifies objects in the 3D image and writes the result to the output image.
+//    int count = 1;
+//    // Initialize the output image.
+//    for (auto &mat : output.data) {
+//        mat.Zero();
+//    }
+//    for (int i = 0; i < depth; i++) {
+//        for (int j = 0; j < width; j++) {
+//            for (int k = 0; k < height; k++) {
+//                if (getPixel(i,j,k) > 0 && output.getPixel(i, j, k) == 0) {
+//                    InsertSurroundingPixels(*this, output, i, j, k, count);
+//                    count++;
+//                }
+//            }
+//        }
+//    }
+//    return count;
+//}
+int Image3D::identifyObjects(Image3D& output) const {
     int count = 1;
-    // Initialize the output image.
     for (auto &mat : output.data) {
         mat.Zero();
     }
+
     for (int i = 0; i < depth; i++) {
         for (int j = 0; j < width; j++) {
             for (int k = 0; k < height; k++) {
-                if (getPixel(i,j,k) > 0 && output.getPixel(i, j, k) == 0) {
+                if (getPixel(i, j, k) > 0 && output.getPixel(i, j, k) == 0) {
+//                    std::cout << "Labeling object " << count << " at position (" << i << ", " << j << ", " << k << ")" << std::endl;
                     InsertSurroundingPixels(*this, output, i, j, k, count);
                     count++;
                 }
             }
         }
     }
+
     return count;
 }
-
 /// order the objects by size
 void Image3D::orderObjectsBySize(Image3D& output, int numcolors)
 {
@@ -101,7 +120,86 @@ void Image3D::orderObjectsBySize(Image3D& output, int numcolors)
     
     std::cout << "objectsinrange: " << std::endl;
     for (const auto& pair : objectsinrange) {
-        std::cout << "number of objects smaller than " << (2 << 2*pair.first) << ": " << pair.second << std::endl;
+        //std::cout << "number of objects smaller than " << (pair.first) << ": " << pair.second << std::endl;
+        std::cout << "number of objects smaller than " << (2<<2*pair.first) << ": " << pair.second << std::endl;
 
     }
 }
+int Image3D::getPixelsInObject(int label) const {
+    int pixelsCount = 0;
+    for (int i = 0; i < depth; i++) {
+        for (int j = 0; j < width; j++) {
+            for (int k = 0; k < height; k++) {
+                if (getPixel(i, j, k) == label) {
+                    pixelsCount++;
+                }
+            }
+        }
+    }
+    return pixelsCount;
+}
+//TPZVector
+
+TPZVec<double> Image3D::obtenerObjetosYPixeles(const Image3D& output, int colors) {
+    TPZVec<double> objetosYPixeles(colors);
+
+    for (int i = 0; i < colors; i++) {
+        int numPixeles = output.getPixelsInObject(i);
+        objetosYPixeles[i]=numPixeles;
+    }
+
+    return objetosYPixeles;
+}
+void Image3D::countFacesByObject(std::map<int, int>& facesCount, const Image3D& Image) const {
+    Image3D output("objects", Image.Depth(), Image.Width(), Image.Height());
+    int count = Image.identifyObjects(output);
+
+    // Initialize face count for each object
+    for (int i = 1; i <= count; i++) {
+        facesCount[i] = 0;
+    }
+
+    // Count faces for each object
+    for (int i = 0; i < Image.Depth(); i++) {
+        for (int j = 0; j < Image.Width(); j++) {
+            for (int k = 0; k < Image.Height(); k++) {
+                int currentLabel = output.getPixel(i, j, k);  // Use labels from the output image
+                if (currentLabel > 0) {
+                    for (int di = -1; di <= 1; di++) {
+                        for (int dj = -1; dj <= 1; dj++) {
+                            for (int dk = -1; dk <= 1; dk++) {
+                                if (di == 0 && dj == 0 && dk == 0) {
+                                    continue;
+                                }
+                                int ni = i + di;
+                                int nj = j + dj;
+                                int nk = k + dk;
+                                if (ni >= 0 && ni < Image.Depth() && nj >= 0 && nj < Image.Width() && nk >= 0 && nk < Image.Height()) {
+                                    int neighborLabel = output.getPixel(ni, nj, nk);  // Use labels from the output image
+                                    if (neighborLabel != currentLabel) {
+                                        facesCount[currentLabel]++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Print faces count for each object
+    for (int i = 1; i <= count; i++) {
+        std::cout << "Object " << i << " has " << facesCount[i] << " faces." << std::endl;
+    }
+}
+//std::vector<std::pair<int, int>> obtenerObjetosYPixeles(const Image3D& ordered, int numColors) {
+//    std::vector<std::pair<int, int>> objetoYPixeles;
+//
+//    for (int i = 1; i < numColors; i++) {
+//        int numPixeles = ordered.getPixelsInObject(i);
+//        objetoYPixeles.push_back(std::make_pair(i, numPixeles));
+//    }
+//
+//    return objetoYPixeles;
+//}
