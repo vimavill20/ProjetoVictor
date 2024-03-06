@@ -186,6 +186,7 @@ cv::Mat readRawFile(const std::string& filename, int width, int height) {
 
 
 int main (){
+  
     TPZVec<int> nx(2, 10);
     //What does it mean the line 46?
     
@@ -219,73 +220,66 @@ int main (){
     
     cmesh->InsertMaterialObject(matDarcy);
     int bc_id=2;
-    int bc_typeN = 0;
-    int bc_typeD = 1;
+    int bc_typeN = 1;
+    int bc_typeD = 0;
     TPZFMatrix<STATE> val1(1,1,0.0);
     TPZVec<STATE> val2(1,0.0);
     
-   
-    TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,4,bc_typeN,val1,val2);
+    int bcinletId = 2;
+    int bcOutletId = 3;
+    int bcNoFlux = 4;
+    TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,bcNoFlux,bc_typeN,val1,val2);
     cmesh->InsertMaterialObject(face2);
     
-    val1(0,0)=10;
-    TPZBndCond * face = matDarcy->CreateBC(matDarcy,2,bc_typeD,val1,val2);
+    val2[0]=10.0; // Valor a ser impuesto como presión en la entrada
+    TPZBndCond * face = matDarcy->CreateBC(matDarcy,bcinletId,bc_typeD,val1,val2);
     cmesh->InsertMaterialObject(face);
     
-    val1(0,0)=5;
-    TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,3,bc_typeD,val1,val2);
+    val2[0]=5; // Valor a ser impuesto como presión en la salida
+    TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
     cmesh->InsertMaterialObject(face1);
     
    
     cmesh->AutoBuild();
+    //Esto hace que el espacio de aproxiación sea H1
     cmesh->ApproxSpace().SetAllCreateFunctionsContinuous();
+    
+    //Inicializa el tamaño del vector solución
     cmesh->ExpandSolution();
     
-    int nelsc = cmesh->NElements();
-    
+  
     //CreateAnalisys
-    
     TPZLinearAnalysis *Analisys = new TPZLinearAnalysis(cmesh);
     bool mustOptimizeBandwidth = false;
    
-    
-   
-    
+    //Carga la solución a la malla computacional
     Analisys->LoadSolution();
     
-    TPZSSpStructMatrix<STATE> matrix(cmesh);
-    matrix.SetNumThreads(8);
-   // Analisys->SetStructuralMatrix(matrix);
+   // Selecciona el método numérico para resolver el problema algebraico
     TPZStepSolver<STATE> step;
     step.SetDirect(ELDLt);
     Analisys->SetSolver(step);
     
+    //Ensamblaje de la matriz de rigidez y vector de carga
     Analisys->Assemble();
+
+    //Resolución del sistema algebraico
     Analisys->Solve();
-    auto solu = Analisys->Solution();
-    solu.Print("test.txt");
-    int nrows=Analisys->Solution().Rows();
-    for(int irow=0; irow<nrows; irow++){
-       // Analisys->Solution().;
-        
-       
-       
-      //  std::cout<<Analisys->Solution(irow,0)<<std::endl;
-    }
- 
-    std::ofstream sol("cmesh.txt");
-    cmesh->Print(sol);
-   
-    int ok=0;
-    //
-    //REAL w= 0.2;
-    //TPZExtendGridDimension extend(gmesh, w);
+
     
-    //auto gmsh3D = extend.ExtendedMesh(5);
-    //std::ofstream file3("TestGeoMesh3D.vtk");
-    //TPZVTKGeoMesh::PrintGMeshVTK(gmsh3D, file3);
-
-
+    //Definición de variables escalares y vectoriales a posprocesar
+    TPZStack<std::string,10> scalnames, vecnames;
+    vecnames.Push("Solution");
+    scalnames.Push("Pressure");
+    
+    //Configuración del posprocesamiento
+    int ref =0; // Permite refinar la malla con la solucion obtenida
+    std::string file_reservoir("SolVictor.vtk");
+    Analisys->DefineGraphMesh(dim,scalnames,vecnames,file_reservoir);
+    //Posprocesamiento
+    Analisys->PostProcess(ref, dim);
+ 
+    return 0;
 }
 int mainfake(){
 cv::Mat img = cv::imread("/Users/victorvillegassalabarria/Downloads/Sample908.tif", cv::IMREAD_COLOR);

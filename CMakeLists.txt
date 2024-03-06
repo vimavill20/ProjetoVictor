@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 3.11.0)
 
 project (MyProject)
 
-add_executable(TestVictor main.cpp)
+# add_executable(TestVictor main.cpp)
 
 
 add_subdirectory(TIF3dVTK)
