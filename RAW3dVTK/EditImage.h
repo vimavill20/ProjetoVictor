@@ -70,7 +70,7 @@ public:
     int getPixelsInObject(int label)const;
     TPZVec<double> obtenerObjetosYPixeles(const Image3D& ordered, const int numColors);
     void countFacesByObject(std::map<int, int>& facesCount, const Image3D& Image) const;
-
+    void highlightObject(const Image3D& input, Image3D& output, int objectToHighlight) const;
 private:
     int depth;
     int width;

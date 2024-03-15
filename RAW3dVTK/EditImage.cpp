@@ -193,6 +193,25 @@ void Image3D::countFacesByObject(std::map<int, int>& facesCount, const Image3D& 
         std::cout << "Object " << i << " has " << facesCount[i] << " faces." << std::endl;
     }
 }
+void Image3D::highlightObject(const Image3D& input, Image3D& output, int objectToHighlight) const {
+    if (input.depth != output.depth || input.width != output.width || input.height != output.height) {
+        
+        return;
+    }
+
+    for (int i = 0; i < input.depth; i++) {
+        for (int j = 0; j < input.width; j++) {
+            for (int k = 0; k < input.height; k++) {
+                if (input.getPixel(i, j, k) == objectToHighlight) {
+                    output.setPixel(i, j, k, 1);
+                } else {
+                    output.setPixel(i, j, k, 0);  // Otros píxeles quedan en 0 (blanco)
+                }
+            }
+        }
+    }
+}
+
 //std::vector<std::pair<int, int>> obtenerObjetosYPixeles(const Image3D& ordered, int numColors) {
 //    std::vector<std::pair<int, int>> objetoYPixeles;
 //

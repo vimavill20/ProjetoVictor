@@ -109,7 +109,10 @@ TPZFMatrix<double> Case10TIF(AllSimulationData alldata, int idata){
     TPZFMatrix<double> matrix=create_binary_matrix(img);
     return matrix;
 }
-int main (){
+//
+//MAIN ORIGINAL
+//
+int mainf (){
     AllSimulationData test;
     
     std::string common_name="/Users/philippedevloo/GitHub/CoreSampleResearch/ProjetoVictor/DADOS_TIF_10Layers/";
@@ -137,3 +140,59 @@ int main (){
     return 0;
 }
 
+
+void generarArchivoGeo(const std::string& nombreArchivo, const std::vector<std::vector<int>>& mascaraBinaria) {
+    std::ofstream archivoGeo(nombreArchivo);
+
+    // Escribir la cabecera del archivo .geo
+    archivoGeo << "lc = 0.1;\n";
+    archivoGeo << "Point(1) = {0, 0, 0, lc};\n";  // Punto de origen
+
+    // Definir puntos y líneas basadas en la máscara binaria
+    int puntoID = 2;  // Comenzar desde 2 para evitar conflictos con el punto de origen
+
+    for (int i = 0; i < mascaraBinaria.size(); ++i) {
+        for (int j = 0; j < mascaraBinaria[i].size(); ++j) {
+            if (mascaraBinaria[i][j] != 0) {
+                // Crear un punto por cada píxel del objeto
+                archivoGeo << "Point(" << puntoID << ") = {" << i << ", " << j << ", 0, lc};\n";
+                ++puntoID;
+            }
+        }
+    }
+
+    // Crear líneas conectando los puntos en la misma fila
+    for (int i = 0; i < mascaraBinaria.size(); ++i) {
+        archivoGeo << "Spline(1) = {";
+        for (int j = 0; j < mascaraBinaria[i].size(); ++j) {
+            if (mascaraBinaria[i][j] != 0) {
+                archivoGeo << puntoID - 1 << ", ";
+            }
+        }
+        archivoGeo << puntoID - 1 << "};\n";
+    }
+
+    // Escribir el final del archivo .geo
+    archivoGeo << "Transfinite Line {1} = " << puntoID - 1 << " Using Progression 1;\n";
+    archivoGeo << "Transfinite Surface {1};\n";
+    archivoGeo << "Recombine Surface {1};\n";
+
+    archivoGeo.close();
+}
+
+int main() {
+    // Supongamos que tienes una máscara binaria que representa tu objeto
+    std::vector<std::vector<int>> mascaraBinaria = {
+        {1, 1, 0, 0},
+        {0, 1, 1, 0},
+        {0, 0, 1, 1},
+        {0, 0, 1, 1}
+    };
+
+    // Generar el archivo .geo
+    generarArchivoGeo("modelo_3d.geo", mascaraBinaria);
+
+    std::cout << "Archivo .geo generado exitosamente." << std::endl;
+
+    return 0;
+}
