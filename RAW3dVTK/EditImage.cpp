@@ -203,14 +203,85 @@ void Image3D::highlightObject(const Image3D& input, Image3D& output, int objectT
         for (int j = 0; j < input.width; j++) {
             for (int k = 0; k < input.height; k++) {
                 if (input.getPixel(i, j, k) == objectToHighlight) {
-                    output.setPixel(i, j, k, 1);
-                } else {
-                    output.setPixel(i, j, k, 0);  // Otros píxeles quedan en 0 (blanco)
-                }
+                    //std::cout<<objectToHighlight<<std::endl;
+
+                    output.setPixel(i, j, k, objectToHighlight);
+                } //else {
+//                    output.setPixel(i, j, k, 0);  // Otros píxeles quedan en 0 (blanco)
+//                }
             }
         }
     }
 }
+void Image3D::Objects3DinPlane(/*const*/ Image3D& input, Image3D& output, int plano) const {
+    if (input.depth != output.depth || input.width != output.width || input.height != output.height) {
+        return; // Las dimensiones de entrada y salida no coinciden
+    }
+    TPZVec<int> objectvalues; /*TPZVec<double>*/
+    for (int depthIndex = 0; depthIndex < input.depth; depthIndex++) {
+        for (int widthIndex = 0; widthIndex < input.width; widthIndex++) {
+            for (int heightIndex = 0; heightIndex < input.height; heightIndex++) {
+                if (depthIndex == plano) {
+                    
+                    if (input.getPixel(depthIndex, widthIndex, heightIndex) != 0) {
+                        int obj=input.getPixel(depthIndex, widthIndex, heightIndex);
+                        //output.setPixel(depthIndex, widthIndex, heightIndex, 50); // Píxeles en el plano y no nulos
+                        
+                        //input.highlightObject(input,output,pix);
+                        //std::cout<<obj<<std::endl;
+                        objectvalues.push_back(obj);
+                    } else {
+                        output.setPixel(depthIndex, widthIndex, heightIndex, 1); // Píxeles en el plano y nulos
+                    }
+                } else {
+                    output.setPixel(depthIndex, widthIndex, heightIndex, 0);  // Otros píxeles quedan en 0 (blanco)
+                }
+            }
+        }
+    }
+    //std::cout<<objectvalues[0]<<std::endl;
+    //std::cout<<objectvalues[1]<<std::endl;
+    //std::cout<<objectvalues[2]<<std::endl;
+    //std::cout<<objectvalues.size()<<std::endl;
+    //std::cout<<objectvalues[4]<<std::endl;
+    std::cout<<"Objetos que cortan el plano: "<<objectvalues.size()<<std::endl;
+    for(int objeto=0;objeto<objectvalues.size();objeto++){
+        input.highlightObject(input,output,objectvalues[objeto]);
+        std::cout<<"Objeto: "<<objeto+1<<" Label: "<<objectvalues[objeto]<< " Numero de pixels: "<<input.getPixelsInObject(objeto)<<std::endl;
+    }
+}
+
+//void Image3D::Objects3DinPlane( Image3D& input, Image3D& output, int plano) const {
+//    if (input.depth != output.depth || input.width != output.width || input.height != output.height) {
+//
+//        return;
+//    }
+//    //Image3D input1("objects",input.Depth(), input.Width(), input.Height());
+//
+//    for (int i = 0; i < input.depth; i++) {
+//        for (int j = 0; j < input.width; j++) {
+//            for (int k = 0; k < input.height; k++) {
+//                if(i==plano && input.getPixel(i, j, k) == 0 ){
+//                    output.setPixel(i,j,k,10000);
+//                }
+//                if(i==plano && input.getPixel(i, j, k) != 0 ){
+//                    output.setPixel(i,j,k,50);
+//                    //input.highlightObject(input,output,input.getPixel(i, j, k));
+//
+//                }
+//                else {
+//                    output.setPixel(i, j, k, 0);  // Otros píxeles quedan en 0 (blanco)
+//                }
+//            }
+//        }
+//    }
+////    for (int i = 0; i < input.depth; i++) {
+////        if (i != plano) {
+////            highlightObject(input, output, i);
+////        }
+////    }
+//
+//}
 
 //std::vector<std::pair<int, int>> obtenerObjetosYPixeles(const Image3D& ordered, int numColors) {
 //    std::vector<std::pair<int, int>> objetoYPixeles;

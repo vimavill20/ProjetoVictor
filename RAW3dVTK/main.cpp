@@ -194,9 +194,11 @@ void AddDataVTK(Image3D & image, const std::string &outfilename)
 
 int mainfake();
 int maintestfraturaaislada();
+int maintestObjectsinPlane();
 int main() {
     //return mainfake();
-    return maintestfraturaaislada();
+    //return maintestfraturaaislada();
+    return maintestObjectsinPlane();
 }
 //CODIGO PRINCIPAL
 int mainfake (){
@@ -327,8 +329,72 @@ int maintestfraturaaislada(){
     return 0;
     
 }
+int maintestObjectsinPlane(){
+    int layers=5;
+    int rows=5;//676;
+    int cols=5;
+    //std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
+    
+    //TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+    
+    TPZFMatrix<double> matrix(rows,cols);
+
+    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
+    for (int layer = 0; layer < layers; ++layer) {
+            for (int row = 0; row < rows; ++row) {
+                for (int col = 0; col < cols; ++col) {
+                    if(col==1&row==3){
+                        VecOfMat[layer](row,col) = 1;
+                        VecOfMat[layer](row-2,col+2) = 1;
+                        VecOfMat[layer](row-2,col) = 1;
+
+                    }
 
 
+                    else{
+                        VecOfMat[layer](row,col) = 0;}
+                }
+            }
+        }
+    VecOfMat[1](4,4) = 1;
+    VecOfMat[4](1,2) = 1;
+
+    std::cout<<VecOfMat<<std::endl;
+    Image3D input("pixeldata",VecOfMat);
+    Image3D output("objects",input.Depth(), input.Width(), input.Height());
+    Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
+    Image3D inputplane("objects",input.Depth(), input.Width(), input.Height());
+
+    int count = input.identifyObjects(output);
+    output.orderObjectsBySize(ordered, count);
+
+    std::string outfilename ="RAWTest.vtk";
+    std::string outfilename1 ="RAWTestoutput.vtk";
+    std::string outfilename2 ="RAWTestordered.vtk";
+    VisualMatrix3DVTK(input, outfilename);
+    std::cout << "adding object data to " << outfilename1 << "\n";
+    AddDataVTK(output, outfilename1);
+    std::cout << "adding ordered data to " << outfilename2 << "\n";
+    AddDataVTK(ordered, outfilename2);
+    //Cubo encerado
+    //TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+    //setPixel layer,col,row
+    //inputbranco.setPixel(1, 2, 2, 1);
+    std::string outfilenamebr="ArquivoBranco.vtk";
+    std::cout << "adding ordered data to " << outfilenamebr << "\n";
+    std::string outfilenamebr1="ArquivoBrancoComObjeto1.vtk";
+    AddDataVTK(inputplane, outfilenamebr);
+    
+    output.Objects3DinPlane(output,inputplane,1);
+    //output.highlightObject(output,inputplane,1);
+    //output.highlightObject(output,inputplane,2);
+    //output.highlightObject(output,inputplane,3);
+    //output.highlightObject(output,inputplane,4);
+
+
+    
+    AddDataVTK(inputplane, outfilenamebr1);
+}
 
 
 
