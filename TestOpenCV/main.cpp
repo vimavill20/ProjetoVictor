@@ -22,6 +22,7 @@
 #include "pzstepsolver.h"
 #include "TPZLinearAnalysis.h"
 #include "TPZSSpStructMatrix.h"
+#include "TPZGmshReader.h"
 //#include "TPZStepSolver.h"
 //using std::cout;
 //using std::endl;
@@ -30,6 +31,7 @@
 using namespace cv;
 using namespace std;
 //Function to generate a mesh using gmsh library
+TPZGeoMesh* generateGMeshWithPhysTagVec(std::string& filename, TPZManVector<std::map<std::string,int>,4>& dim_name_and_physical_tagFine);
 void generarMalla(std::string nombreArchivo, double L, double lc) {
     gmsh::initialize();
     gmsh::model::add(nombreArchivo);
@@ -210,6 +212,20 @@ int main (){
     std::ofstream file2("TestGeoMesh2D.vtk");
     TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file2);
     
+    
+    
+    
+    TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
+    dim_name_and_physical_tagCoarse[2]["k11"] = 1;
+    dim_name_and_physical_tagCoarse[1]["inlet"] = 2;
+    dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
+    dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
+    
+    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestcompleta.msh";
+    gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
+   
+    std::ofstream file3("TestGeoMesh2Dnew.vtk");
+    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file3);
     //Create CompMesh
     TPZCompMesh *cmesh =  new TPZCompMesh(gmesh);
     
@@ -257,6 +273,13 @@ int main (){
     
    // Selecciona el método numérico para resolver el problema algebraico
     TPZStepSolver<STATE> step;
+    
+    TPZSSpStructMatrix<STATE> matrix(cmesh);
+      step.SetDirect(ELDLt);
+  
+    Analisys->SetStructuralMatrix(matrix);
+    
+    
     step.SetDirect(ELDLt);
     Analisys->SetSolver(step);
     
@@ -269,7 +292,7 @@ int main (){
     
     //Definición de variables escalares y vectoriales a posprocesar
     TPZStack<std::string,10> scalnames, vecnames;
-    vecnames.Push("Solution");
+    vecnames.Push("Flux");
     scalnames.Push("Pressure");
     
     //Configuración del posprocesamiento
@@ -306,4 +329,17 @@ auto rutaImagen="/Users/victorvillegassalabarria/Downloads/908imagen_binaria.tif
 //    auto rutaImagen="/Users/victorvillegassalabarria/Documents/Github/ProjetoVictor2_build/BinaryImage.png";
 procesarImagen(rutaImagen);
 return 0;
+}
+TPZGeoMesh* generateGMeshWithPhysTagVec(std::string& filename, TPZManVector<std::map<std::string,int>,4>& dim_name_and_physical_tagFine){
+            
+    // Creating gmsh reader
+    TPZGmshReader  GeometryFine;
+    TPZGeoMesh *gmeshFine;
+    REAL l = 1.0;
+    GeometryFine.SetCharacteristiclength(l);
+    
+    // Reading mesh
+    GeometryFine.SetDimNamePhysical(dim_name_and_physical_tagFine);
+    gmeshFine = GeometryFine.GeometricGmshMesh(filename,nullptr,false);
+    return gmeshFine;
 }
