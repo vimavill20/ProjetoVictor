@@ -221,7 +221,7 @@ int main (){
     dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
     dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
     
-    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestcompleta.msh";
+    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestpointslinesap.msh";
     gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
    
     std::ofstream file3("TestGeoMesh2Dnew.vtk");
@@ -247,11 +247,11 @@ int main (){
     TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,bcNoFlux,bc_typeN,val1,val2);
     cmesh->InsertMaterialObject(face2);
     
-    val2[0]=10.0; // Valor a ser impuesto como presión en la entrada
+    val2[0]=100; // Valor a ser impuesto como presión en la entrada
     TPZBndCond * face = matDarcy->CreateBC(matDarcy,bcinletId,bc_typeD,val1,val2);
     cmesh->InsertMaterialObject(face);
     
-    val2[0]=5; // Valor a ser impuesto como presión en la salida
+    val2[0]=10; // Valor a ser impuesto como presión en la salida
     TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
     cmesh->InsertMaterialObject(face1);
     
@@ -274,13 +274,12 @@ int main (){
    // Selecciona el método numérico para resolver el problema algebraico
     TPZStepSolver<STATE> step;
     
-    TPZSSpStructMatrix<STATE> matrix(cmesh);
+//    TPZSSpStructMatrix<STATE> matrix(cmesh);
       step.SetDirect(ELDLt);
   
-    Analisys->SetStructuralMatrix(matrix);
+//    Analisys->SetStructuralMatrix(matrix);
     
-    
-    step.SetDirect(ELDLt);
+
     Analisys->SetSolver(step);
     
     //Ensamblaje de la matriz de rigidez y vector de carga
