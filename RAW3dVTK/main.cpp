@@ -195,11 +195,63 @@ void AddDataVTK(Image3D & image, const std::string &outfilename)
 int mainfake();
 int maintestfraturaaislada();
 int maintestObjectsinPlane();
+int mainnewImages();
 int main() {
     //return mainfake();
     //return maintestfraturaaislada();
     return maintestObjectsinPlane();
+//    return mainnewImages();
 }
+
+int mainnewImages(){
+//    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/ImagesICPSC2015/Bentheimer_1000c_3p0035um.raw";
+    
+//    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/ImagesICPSC2015/Estaillades_1000c_3p31136um.raw";
+//        std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/ImagesICPSC2015/Doddington_1000c_2p6929um.raw";
+    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/ImagesICPSC2015/Ketton_1000c_3p00006um.raw";
+
+        int layers=100;
+        int rows=100;
+        int cols=100;
+        TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+//        std::cout << "Vector of matrixs is created " << outfilename1 << "\n";
+
+    
+//        Image3D input("pixeldata",VecOfMat);
+//        Image3D output("objects",input.Depth(), input.Width(), input.Height());
+//        Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
+//        int count = input.identifyObjects(output);
+////        std::cout << "Identified " << count << " objects." <<"\n"<< std::endl;
+//        output.orderObjectsBySize(ordered, count);
+////        std::cout << count << "\n";
+//        std::string outfilename ="RAWTestBentheimer.vtk";
+//        std::string outfilename1 ="RAWTestBentheimeroutput.vtk";
+//        std::string outfilename2 ="RAWTestBentheimerordered.vtk";
+//
+//        VisualMatrix3DVTK(input, outfilename);
+//        std::cout << "adding object data to " << outfilename1 << "\n";
+//        AddDataVTK(output, outfilename1);
+        Image3D input("pixeldata",VecOfMat);
+        Image3D output("objects",input.Depth(), input.Width(), input.Height());
+        Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
+        int count = input.identifyObjects(output);
+        output.orderObjectsBySize(ordered, count);
+        std::cout << count << "\n";
+        std::string outfilename ="RAWTest.vtk";
+        std::string outfilename1 ="RAWTestoutput.vtk";
+        std::string outfilename2 ="RAWTestordered.vtk";
+        VisualMatrix3DVTK(input, outfilename);
+        std::cout << "adding object data to " << outfilename1 << "\n";
+        AddDataVTK(output, outfilename1);
+        std::cout << "adding ordered data to " << outfilename2 << "\n";
+        AddDataVTK(ordered, outfilename2);
+    }
+
+
+
+
+
+
 //CODIGO PRINCIPAL
 int mainfake (){
 //    std::string ImagenRaw="Sample_Labels_3D_RAW.raw";
@@ -330,9 +382,9 @@ int maintestfraturaaislada(){
     
 }
 int maintestObjectsinPlane(){
-    int layers=5;
-    int rows=5;//676;
-    int cols=5;
+    int layers=20;
+    int rows=20;//676;
+    int cols=20;
     //std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
     
     //TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
@@ -356,9 +408,22 @@ int maintestObjectsinPlane(){
                 }
             }
         }
+    for (int row = 0; row < rows; ++row) {
+            
+        VecOfMat[10](row,10) = 1;
+        VecOfMat[10](row,12) = 1;
+    }
+        
+    
+        
+        
     VecOfMat[1](4,4) = 1;
     VecOfMat[4](1,2) = 1;
+    VecOfMat[15](15,15) = 1;
+    VecOfMat[10](12,12) = 1;
 
+    
+    
     std::cout<<VecOfMat<<std::endl;
     Image3D input("pixeldata",VecOfMat);
     Image3D output("objects",input.Depth(), input.Width(), input.Height());
