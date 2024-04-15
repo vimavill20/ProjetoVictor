@@ -106,12 +106,13 @@ void VisualMatrix3DVTK(TPZVec<TPZFMatrix<double>> & matrixVector, const std::str
 
 //CODIGO PRINCIPAL
 int main (){
-    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
+    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/ImagesICPSC2015/Bentheimer_1000c_3p0035um.raw";
     int layers=100;
     int rows=676;
     int cols=616;
     TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
-    std::string outfilename ="RAWTest.vtk";
+//    std::cout<<VecOfMat[0]<<std::endl;
+    std::string outfilename ="RAWTestBentheimer.vtk";
     VisualMatrix3DVTK(VecOfMat, outfilename);
   
     
