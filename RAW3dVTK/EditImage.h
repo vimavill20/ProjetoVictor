@@ -66,6 +66,8 @@ public:
 
     /// order the objects by size
     void orderObjectsBySize(Image3D& output, int numcolors);
+    void SegmentVugFracture(Image3D& output, int numcolors,const std::string& filename);
+    
     void countFacesByObject(std::map<int, int>& facesCount) const;
     int getPixelsInObject(int label)const;
     TPZVec<double> obtenerObjetosYPixeles(const Image3D& ordered, const int numColors);

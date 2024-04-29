@@ -196,11 +196,13 @@ int mainfake();
 int maintestfraturaaislada();
 int maintestObjectsinPlane();
 int mainnewImages();
+int mainpython();
 int main() {
+    return mainpython();
     //return mainfake();
     //return maintestfraturaaislada();
-    return maintestObjectsinPlane();
-//    return mainnewImages();
+    //return maintestObjectsinPlane();
+//  //  return mainnewImages();
 }
 
 int mainnewImages(){
@@ -257,28 +259,38 @@ int mainfake (){
 //    std::string ImagenRaw="Sample_Labels_3D_RAW.raw";
     std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
     
-    int layers=3;
-    int rows=5;//676;
-    int cols=5;//616;
-//    TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
-    
-    TPZFMatrix<double> matrix(rows,cols);
-    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
-    for (int layer = 0; layer < layers; ++layer) {
-            for (int row = 0; row < rows; ++row) {
-                for (int col = 0; col < cols; ++col) {
-                    if(col==2&row==2){
-                        VecOfMat[1](row,col) = 1;}
-                    
-                    else{
-                        VecOfMat[layer](row,col) = 0;}
-                }
-            }
-        }
-    std::cout<<VecOfMat<<std::endl;
+    int layers=30;
+    int rows=676;//676;
+    int cols=616;//616;
+    TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+    std::cout << "Vecofmat created " << std::endl;
+
+//    TPZFMatrix<double> matrix(rows,cols);
+//    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
+//    for (int layer = 0; layer < layers; ++layer) {
+//            for (int row = 0; row < rows; ++row) {
+//                for (int col = 0; col < cols; ++col) {
+//                    if(col==2&row==2){
+//                        VecOfMat[1](row,col) = 1;}
+//
+//                    else{
+//                        VecOfMat[layer](row,col) = 0;}
+//                }
+//            }
+//        }
+//    VecOfMat[0](4,4) = 1;
+//    VecOfMat[0](4,3) = 1;
+
+//    std::cout<<VecOfMat<<std::endl;
     Image3D input("pixeldata",VecOfMat);
+    std::cout << "Image 3d created " << std::endl;
+
     Image3D output("objects",input.Depth(), input.Width(), input.Height());
+    std::cout << "ImageOUT 3d created " << std::endl;
+
     Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
+    std::cout << "ImageOrd 3d created " << std::endl;
+
     int count = input.identifyObjects(output);
     std::cout << "Identified " << count << " objects." <<"\n"<< std::endl;
     output.orderObjectsBySize(ordered, count);
@@ -287,37 +299,43 @@ int mainfake (){
     std::string outfilename1 ="RAWTestoutput.vtk";
     std::string outfilename2 ="RAWTestordered.vtk";
 
+
+    
     VisualMatrix3DVTK(input, outfilename);
     std::cout << "adding object data to " << outfilename1 << "\n";
     AddDataVTK(output, outfilename1);
     std::cout << "adding ordered data to " << outfilename2 << "\n";
     AddDataVTK(ordered, outfilename2);
-//
-    //
-    int etiquetaObjeto = 0; // Puedes cambiar esto con la etiqueta del objeto que deseas analizar
+    
+    int etiquetaObjeto = 100; // Puedes cambiar esto con la etiqueta del objeto que deseas analizar
     int numPixeles = output.getPixelsInObject(etiquetaObjeto);
     std::cout << "El objeto con etiqueta " << etiquetaObjeto << " tiene " << numPixeles << " píxeles." << std::endl;
+    int etiquetaObjetoOrd = 100; // Puedes cambiar esto con la etiqueta del objeto que deseas analizar
+    int numPixelesOrd = ordered.getPixelsInObject(etiquetaObjetoOrd);
+    std::cout << "El objeto con etiqueta( objetos ordenados) " << etiquetaObjeto << " tiene " << numPixelesOrd << " píxeles." << std::endl;
     int numPixeles1 = output.getPixelsInObject(1);
     std::cout << "El objeto con etiqueta " << "1" << " tiene " << numPixeles1 << " píxeles." << std::endl;
     int numberBuracos=0;
+//
+    //
 
-    std::vector<int> ObjectsPixels(2,0);
-    for(int i=1;i<count+1;i++){
-        numPixeles=output.getPixelsInObject(i);
-        numberBuracos+=numPixeles;
-        numPixeles=0;
-    }
-    std::cout << "El numero  total de pixeles en objetos reconocidos es " << numberBuracos << std::endl;
+//    std::vector<int> ObjectsPixels(2,0);
+//    for(int i=1;i<count+1;i++){
+//        numPixeles=output.getPixelsInObject(i);
+//        numberBuracos+=numPixeles;
+//        numPixeles=0;
+//    }
+//    std::cout << "El numero  total de pixeles en objetos reconocidos es " << numberBuracos << std::endl;
 //
     
         // Imprimir el contenido del vector
-        std::cout << "Contenido del vector:" << std::endl;
-    TPZVec<double> VecPixelsbyObjects(count);
-    VecPixelsbyObjects= output.obtenerObjetosYPixeles(output, count);
-    //std::cout << VecPixelsbyObjects <<std::endl;
-    for (int i = 0; i < VecPixelsbyObjects.size(); i++) {
-        std::cout << "Objeto " << i << ", Píxeles " << VecPixelsbyObjects[i] << std::endl;
-        }
+//        std::cout << "Contenido del vector:" << std::endl;
+//    TPZVec<double> VecPixelsbyObjects(count);
+//    VecPixelsbyObjects= output.obtenerObjetosYPixeles(output, count);
+//    //std::cout << VecPixelsbyObjects <<std::endl;
+//    for (int i = 0; i < VecPixelsbyObjects.size(); i++) {
+//        std::cout << "Objeto " << i << ", Píxeles " << VecPixelsbyObjects[i] << std::endl;
+//        }
    
         // Call the countFacesByObject method
 
@@ -459,6 +477,92 @@ int maintestObjectsinPlane(){
 
     
     AddDataVTK(inputplane, outfilenamebr1);
+}
+int mainpython(){
+//    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/geometrias.raw";
+    //std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
+    
+//    int layers=20;//30
+//    int rows=20;//676;
+//    int cols=20;//616;
+//
+//    //TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+//    TPZFMatrix<double> matrix(rows,cols);
+//
+//    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
+//    for (int layer = 0; layer < layers; ++layer) {
+//            for (int row = 0; row < rows; ++row) {
+//                for (int col = 0; col < cols; ++col) {
+//                    if(col==1&row==3){
+//                        VecOfMat[layer](row,col) = 1;
+//                        VecOfMat[layer](row-2,col+2) = 1;
+//                        VecOfMat[layer](row-2,col) = 1;
+//
+//                    }
+//
+//
+//                    else{
+//                        VecOfMat[layer](row,col) = 0;}
+//                }
+//            }
+//        }
+//    for (int row = 0; row < rows; ++row) {
+//
+//        VecOfMat[10](row,10) = 1;
+//        VecOfMat[10](row,12) = 1;
+//    }
+//
+//
+//
+//
+//    VecOfMat[1](4,4) = 1;
+//    VecOfMat[4](1,2) = 1;
+//    VecOfMat[15](15,15) = 1;
+//    VecOfMat[10](12,12) = 1;
+    int layers=310;
+    int rows=10;//676;
+    int cols=10;
+    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
+    
+    TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
+    
+    TPZFMatrix<double> matrix(rows,cols);
+    
+//    TPZVec<TPZFMatrix<double>> VecOfMat(layers,matrix);
+//    for (int layer = 0; layer < layers; ++layer) {
+//            for (int row = 0; row < rows; ++row) {
+//                for (int col = 0; col < cols; ++col) {
+//                    if(col==2&row==2){
+//                        VecOfMat[1](row,col) = 1;}
+//
+//                    else{
+//                        VecOfMat[layer](row,col) = 0;}
+//                }
+//            }
+//        }
+    
+    
+    //std::cout<<VecOfMat<<std::endl;
+    std::cout << "Vecofmat created " << std::endl;
+    Image3D input("pixeldata",VecOfMat);
+    Image3D output("objects",input.Depth(), input.Width(), input.Height());
+    Image3D ordered("ordered",input.Depth(), input.Width(), input.Height());
+    Image3D Segm("ordered",input.Depth(), input.Width(), input.Height());
+    int count = input.identifyObjects(output);
+    output.orderObjectsBySize(ordered, count);
+    std::cout << count << "\n";
+    std::string outfilename ="RAWTest.vtk";
+    std::string outfilename1 ="RAWTestoutput.vtk";
+    std::string outfilename2 ="RAWTestordered.vtk";
+    std::string filen="Voxel_cords.txt";
+//    ordered.SegmentVugFracture(Segm,30,filen);
+    VisualMatrix3DVTK(input, outfilename);
+    std::cout << "adding object data to " << outfilename1 << "\n";
+    AddDataVTK(output, outfilename1);
+    std::cout << "adding ordered data to " << outfilename2 << "\n";
+    AddDataVTK(ordered, outfilename2);
+    output.SegmentVugFracture(Segm,20,filen);
+
 }
 
 
