@@ -150,6 +150,7 @@ int Image3D::getPixelsInObject(int label) const {
         }
     }
     std::cout<<UbicaçoesVoxels<<std::endl;
+    
     return pixelsCount;
 }
 //TPZVector
@@ -264,47 +265,48 @@ void Image3D::Objects3DinPlane(/*const*/ Image3D& input, Image3D& output, int pl
         std::cout<<"Objeto: "<<objeto+1<<" Label: "<<objectvalues[objeto]<< " Numero de pixels: "<<input.getPixelsInObject(objeto)<<std::endl;
     }
 }
-void Image3D::SegmentVugFracture(Image3D& output, int numcolors,const std::string& filename)
-{
-    std::ofstream outfile(filename);
-    TPZVec<int> lista_fract;
-    TPZVec<int>lista_vug;
-    TPZVec<TPZVec<int>> voxel;
-    TPZVec<TPZVec<TPZVec<int>>> voxels_cord;
-    
+//void Image3D::SegmentVugFracture(Image3D& output, int numcolors,const std::string& filename)
+//{
 //    std::ofstream outfile(filename);
-    for(int objectToHighlight=1; objectToHighlight<numcolors;objectToHighlight++){
-//        outfile << "Object " << objectToHighlight << std::endl;
-        for (int i = 0; i < output.depth; i++) {
-            for (int j = 0; j < output.width; j++) {
-                for (int k = 0; k < output.height; k++) {
-                    int pixelval = output.getPixel(i, j, k);
-                    if (pixelval == objectToHighlight) {
-                        std::cout<<"hola"<<std::endl;
-                        //std::cout<<objectToHighlight<<std::endl;
-                         // 3 elementos para i, j, k
-                        // Asignar valores a i, j y k
+//    TPZVec<int> lista_fract;
+//    TPZVec<int>lista_vug;
+//    TPZVec<TPZVec<int>> voxel;
+//    TPZVec<TPZVec<TPZVec<int>>> voxels_cord;
+//
+////    std::ofstream outfile(filename);
+//    for(int objectToHighlight=1; objectToHighlight<numcolors;objectToHighlight++){
+//        std::cout<<objectToHighlight<<std::endl;
+//        output.getPixelsInObject(objectToHighlight);
+//
+//    }
+    int Image3D::getTxtPixelsInObject(int label,const std::string& filename) const {
+        TPZVec<TPZVec<int>>UbicaçoesVoxels;
+        std::ofstream outfile(filename);
+        int pixelsCount = 0;
+        for (int i = 0; i < depth; i++) {
+            for (int j = 0; j < width; j++) {
+                for (int k = 0; k < height; k++) {
+                    if (getPixel(i, j, k) == label) {
+                        pixelsCount++;
                         TPZVec<int>a;
                         a.push_back(i);
                         a.push_back(j);
                         a.push_back(k);
-                        voxel.push_back(a);
-                        // Agregar el vector voxel a voxels_cord
-//                        voxels_cord[objectToHighlight].push_back(voxel);
-            
-                    } //else {
-    //                    output.setPixel(i, j, k, 0);  // Otros píxeles quedan en 0 (blanco)
-    //                }
+                        UbicaçoesVoxels.push_back(a);
+    //                    UbicaçoesVoxels[pixelsCount]=;
+                    }
                 }
             }
         }
-        voxels_cord.push_back(voxel);
+        //std::cout<<UbicaçoesVoxels<<std::endl;
+        outfile <<UbicaçoesVoxels <<std::endl;
+        return pixelsCount;
     }
     //std::cout<<voxels_cord[1]<<std::endl;
-    outfile <<"["<<voxels_cord[10] <<"]"<<std::endl;
-    outfile.close();
+    //outfile <<"["<<voxels_cord[10] <<"]"<<std::endl;
+    //outfile.close();
     
-}
+
 
 //void Image3D::Objects3DinPlane( Image3D& input, Image3D& output, int plano) const {
 //    if (input.depth != output.depth || input.width != output.width || input.height != output.height) {

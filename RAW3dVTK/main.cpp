@@ -519,9 +519,9 @@ int mainpython(){
 //    VecOfMat[4](1,2) = 1;
 //    VecOfMat[15](15,15) = 1;
 //    VecOfMat[10](12,12) = 1;
-    int layers=310;
-    int rows=10;//676;
-    int cols=10;
+    int layers=150;
+    int rows=676;//676;
+    int cols=616;
     std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
     
     TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
@@ -561,7 +561,7 @@ int mainpython(){
     AddDataVTK(output, outfilename1);
     std::cout << "adding ordered data to " << outfilename2 << "\n";
     AddDataVTK(ordered, outfilename2);
-    output.SegmentVugFracture(Segm,20,filen);
+    ordered.getTxtPixelsInObject(100,filen);
 
 }
 
