@@ -188,9 +188,10 @@ cv::Mat readRawFile(const std::string& filename, int width, int height) {
 }
 int main3D();
 int main2D();
-
+int main2DFracVug();
 int main (){
-    return main3D();
+    main2DFracVug();
+    return 0;
 }
 int main2D (){
   
@@ -441,4 +442,26 @@ int main3D(){
     Analisys->PostProcess(ref, dim);
  
     return 0;
+}
+int main2DFracVug(){
+      TPZGeoMesh *gmesh = new TPZGeoMesh;
+      TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
+      dim_name_and_physical_tagCoarse[2]["k11"] = 1;
+      dim_name_and_physical_tagCoarse[2]["SmallVug"] = 7;
+      dim_name_and_physical_tagCoarse[2]["BigVug"] = 8;
+      dim_name_and_physical_tagCoarse[1]["inlet"] = 2;
+      dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
+      dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
+      dim_name_and_physical_tagCoarse[1]["SmallFract"] = 5;
+      dim_name_and_physical_tagCoarse[1]["BigFract"] = 6;
+
+
+      
+      std::string filename="/Users/victorvillegassalabarria/python-test/testskel4.msh";
+      gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
+     
+      std::ofstream file3("TestGeoMesh2Dskel.vtk");
+      TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file3);
+      //Create CompMesh
+      TPZCompMesh *cmesh =  new TPZCompMesh(gmesh);
 }

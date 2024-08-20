@@ -15,7 +15,7 @@
 #include "TPZVTKGeoMesh.h"
 #include "pzvec.h"
 //#include "TPZEigenSolver"
-#include <gmsh.h>
+//#include <gmsh.h>
 #include <fstream>
 #include "pzstepsolver.h"
 #include "TPZMaterial.h"
