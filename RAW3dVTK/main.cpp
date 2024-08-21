@@ -114,8 +114,6 @@ int main (){
 //    std::cout<<VecOfMat[0]<<std::endl;
     std::string outfilename ="RAWTestBentheimer.vtk";
     VisualMatrix3DVTK(VecOfMat, outfilename);
-  
-    
     return 0;
 }
 

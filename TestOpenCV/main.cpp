@@ -406,7 +406,7 @@ int main3D(){
   
     //CreateAnalisys
     TPZLinearAnalysis *Analisys = new TPZLinearAnalysis(cmesh);
-    bool mustOptimizeBandwidth = false;
+    bool mustOptimizeBandwidth = false;//true
    
     //Carga la solución a la malla computacional
     Analisys->LoadSolution();
@@ -464,4 +464,95 @@ int main2DFracVug(){
       TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file3);
       //Create CompMesh
       TPZCompMesh *cmesh =  new TPZCompMesh(gmesh);
+    
+        //Create Materials
+        int matId=1;
+        int dim2d = 2;
+        int matIdsmallFract=2;
+        int matIBigFract=2;
+        int dim1d=1;
+    
+        TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim2d);
+        TPZDarcyFlow *matDarcySmallFract= new TPZDarcyFlow(5,dim1d);
+        TPZDarcyFlow *matDarcyBigFract= new TPZDarcyFlow(6,dim1d);
+        TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(7,dim2d);
+        TPZDarcyFlow *matDarcyBigVug= new TPZDarcyFlow(8,dim2d);
+    
+        matDarcy->SetConstantPermeability(0.1);
+        matDarcySmallVug->SetConstantPermeability(100);
+        matDarcyBigVug->SetConstantPermeability(100000);
+        matDarcySmallFract->SetConstantPermeability(1e10);
+        matDarcyBigFract->SetConstantPermeability(1e10);
+
+        cmesh->InsertMaterialObject(matDarcy);
+        int bc_id=2;
+        int bc_typeN = 1;
+        int bc_typeD = 0;
+        TPZFMatrix<STATE> val1(1,1,0.0);
+        TPZVec<STATE> val2(1,0.0);
+        
+        int bcinletId = 2;
+        int bcOutletId = 3;
+        int bcNoFlux = 4;
+        TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,bcNoFlux,bc_typeN,val1,val2);
+        cmesh->InsertMaterialObject(face2);
+        
+        val2[0]=100; // Valor a ser impuesto como presión en la entrada
+        TPZBndCond * face = matDarcy->CreateBC(matDarcy,bcinletId,bc_typeD,val1,val2);
+        cmesh->InsertMaterialObject(face);
+        
+        val2[0]=10; // Valor a ser impuesto como presión en la salida
+        TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
+        cmesh->InsertMaterialObject(face1);
+        cmesh->InsertMaterialObject(matDarcySmallFract);
+        cmesh->InsertMaterialObject(matDarcyBigFract);
+        cmesh->InsertMaterialObject(matDarcySmallVug);
+        cmesh->InsertMaterialObject(matDarcyBigVug);
+       
+        cmesh->AutoBuild();
+        //Esto hace que el espacio de aproxiación sea H1
+        cmesh->ApproxSpace().SetAllCreateFunctionsContinuous();
+        
+        //Inicializa el tamaño del vector solución
+        cmesh->ExpandSolution();
+        
+      
+        //CreateAnalisys
+        TPZLinearAnalysis *Analisys = new TPZLinearAnalysis(cmesh);
+        bool mustOptimizeBandwidth = false;
+       
+        //Carga la solución a la malla computacional
+        Analisys->LoadSolution();
+        
+       // Selecciona el método numérico para resolver el problema algebraico
+        TPZStepSolver<STATE> step;
+        
+    //    TPZSSpStructMatrix<STATE> matrix(cmesh);
+          step.SetDirect(ELDLt);
+      
+    //    Analisys->SetStructuralMatrix(matrix);
+        
+
+        Analisys->SetSolver(step);
+        
+        //Ensamblaje de la matriz de rigidez y vector de carga
+        Analisys->Assemble();
+
+        //Resolución del sistema algebraico
+        Analisys->Solve();
+
+        
+        //Definición de variables escalares y vectoriales a posprocesar
+        TPZStack<std::string,10> scalnames, vecnames;
+        vecnames.Push("Flux");
+        scalnames.Push("Pressure");
+        
+        //Configuración del posprocesamiento
+        int ref =0; // Permite refinar la malla con la solucion obtenida
+        std::string file_reservoir("SolVictorCTmesh.vtk");
+        Analisys->DefineGraphMesh(dim2d,scalnames,vecnames,file_reservoir);
+        //Posprocesamiento
+        Analisys->PostProcess(ref, dim2d);
+     
+        return 0;
 }
