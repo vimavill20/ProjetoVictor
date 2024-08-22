@@ -483,8 +483,32 @@ int main2DFracVug(){
         matDarcyBigVug->SetConstantPermeability(100000);
         matDarcySmallFract->SetConstantPermeability(1e10);
         matDarcyBigFract->SetConstantPermeability(1e10);
+    int x, y;
 
-        cmesh->InsertMaterialObject(matDarcy);
+//    // Definir una función de permeabilidad como una lambda
+    PermeabilityFunctionType perm_function = [](const TPZVec<REAL>& coord) -> STATE {
+        if (coord[0]>100){
+            return 100;
+        }
+        else{
+            return 1;
+            
+        };
+    };
+//        // Ejemplo: Permeabilidad depende de x (coord[0])
+//        return coord[0] * 1e-3;
+    
+    
+    matDarcy->SetPermeabilityFunction(perm_function);
+    //Conseguir permeabilidade em um ponto da malha coord(x,y);
+    
+    TPZVec<REAL> coord(2);
+    coord[0]=90.5;
+    coord[1]=650;
+    auto Perm=matDarcy->GetPermeability(coord);
+    std::cout<<Perm<<std::endl;
+    //Conseguir permeabilidade em um ponto da malha coord(x,y);
+    cmesh->InsertMaterialObject(matDarcy);
         int bc_id=2;
         int bc_typeN = 1;
         int bc_typeD = 0;
