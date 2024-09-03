@@ -29,6 +29,10 @@
 //using std::endl;
 //using std::cin;
 //hola
+int mainDarcy2d();
+int mainDarcy3D();
+
+
 using namespace cv;
 using namespace std;
 //Function to generate a mesh using gmsh library
@@ -189,11 +193,17 @@ cv::Mat readRawFile(const std::string& filename, int width, int height) {
 int main3D();
 int main2D();
 int main2DFracVug();
+int mainDarcy3D ();
 int main (){
     main2DFracVug();
     return 0;
 }
-int main2D (){
+//int main(){
+//
+//    return mainDarcy3D();
+//}
+
+int mainDarcy2d (){
   
     TPZVec<int> nx(2, 10);
     //What does it mean the line 46?
@@ -364,6 +374,48 @@ int main3D(){
     gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
    
     std::ofstream file3("TestGeoMesh2Dnew.vtk");
+
+}
+int mainDarcy3D (){
+  
+    TPZVec<int> nx(2, 10);
+    //What does it mean the line 46?
+    
+    nx[0]=3;
+    nx[1]=1;
+    const TPZVec<REAL> x0(3, 0.);
+    const TPZVec<REAL> x1(3, 0.);
+    x1[0]=1.0;
+    x1[1]=1.0;
+    auto msh = TPZGenGrid2D(nx, x0, x1);
+    
+    TPZGeoMesh *gmesh = new TPZGeoMesh;
+    
+    msh.Read(gmesh);
+    msh.SetElementType(MMeshType::EQuadrilateral);
+    
+    msh.SetBC(gmesh, 7, 2);
+    msh.SetBC(gmesh, 5, 3);
+    msh.SetBC(gmesh, 4, 4);
+    msh.SetBC(gmesh, 6, 4);
+    std::ofstream file2("TestGeoMesh2D.vtk");
+    TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file2);
+    
+    
+    
+    
+    TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
+    dim_name_and_physical_tagCoarse[2]["k11"] = 1;
+    dim_name_and_physical_tagCoarse[1]["inlet"] = 2;
+    dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
+    dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
+    
+//    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestpointslinesap.msh";
+    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/cubo.msh";
+
+    gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
+   
+    std::ofstream file3("TestGeoMesh3Dnew.vtk");
     TPZVTKGeoMesh::PrintGMeshVTK(gmesh, file3);
     //Create CompMesh
     TPZCompMesh *cmesh =  new TPZCompMesh(gmesh);
@@ -374,6 +426,10 @@ int main3D(){
 //    TPZMixedDarcyFlow *matDarcy = new TPZMixedDarcyFlow(matId, dim);
     TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim);
 
+//    int dim = 2;
+//    int dim=3;
+//    TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim);
+    
     cmesh->InsertMaterialObject(matDarcy);
     int bc_id=2;
     int bc_typeN = 1;
@@ -437,6 +493,7 @@ int main3D(){
     //Configuración del posprocesamiento
     int ref =0; // Permite refinar la malla con la solucion obtenida
     std::string file_reservoir("SolVictor.vtk");
+//    std::string file_reservoir("SolVictor3D.vtk");
     Analisys->DefineGraphMesh(dim,scalnames,vecnames,file_reservoir);
     //Posprocesamiento
     Analisys->PostProcess(ref, dim);
@@ -478,27 +535,36 @@ int main2DFracVug(){
         TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(7,dim2d);
         TPZDarcyFlow *matDarcyBigVug= new TPZDarcyFlow(8,dim2d);
     
-        matDarcy->SetConstantPermeability(0.1);
-        matDarcySmallVug->SetConstantPermeability(100);
-        matDarcyBigVug->SetConstantPermeability(100000);
+        matDarcy->SetConstantPermeability(1e6);
+        matDarcySmallVug->SetConstantPermeability(1.0e-5);
+        matDarcyBigVug->SetConstantPermeability(1.0e-5);
         matDarcySmallFract->SetConstantPermeability(1e10);
         matDarcyBigFract->SetConstantPermeability(1e10);
     int x, y;
 
 //    // Definir una función de permeabilidad como una lambda
+//    PermeabilityFunctionType perm_function = [](const TPZVec<REAL>& coord) -> STATE {
+//        if (coord[0]>100 and coord[1]>100){
+//            return 1000;
+//        }
+//        else{
+//            return 1;
+//
+//        };
+//    };
     PermeabilityFunctionType perm_function = [](const TPZVec<REAL>& coord) -> STATE {
-        if (coord[0]>100){
-            return 100;
-        }
-        else{
-            return 1;
-            
-        };
+        REAL x = coord[0];
+        REAL y = coord[1];
+        REAL arg = 2 * M_PI * x + 2 * M_PI * y;
+        REAL cos_arg = cos(arg);
+        REAL exp_term = exp(2.3 * cos_arg);
+        
+        return exp_term;
     };
 //        // Ejemplo: Permeabilidad depende de x (coord[0])
 //        return coord[0] * 1e-3;
-    
-    
+//
+//
     matDarcy->SetPermeabilityFunction(perm_function);
     //Conseguir permeabilidade em um ponto da malha coord(x,y);
     
@@ -580,3 +646,4 @@ int main2DFracVug(){
      
         return 0;
 }
+
