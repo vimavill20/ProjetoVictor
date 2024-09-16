@@ -561,9 +561,6 @@ int mainpython(){
     AddDataVTK(output, outfilename1);
     std::cout << "adding ordered data to " << outfilename2 << "\n";
     AddDataVTK(ordered, outfilename2);
-    ordered.getTxtPixelsInObject(100,filen);
+    ordered.getTxtPixelsInObject(5,filen);
 
 }
-
-
-
