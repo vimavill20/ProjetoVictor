@@ -519,11 +519,11 @@ int mainpython(){
 //    VecOfMat[4](1,2) = 1;
 //    VecOfMat[15](15,15) = 1;
 //    VecOfMat[10](12,12) = 1;
-    int layers=150;
+    int layers=910;
     int rows=676;//676;
     int cols=616;
-    std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
-    
+    //std::string ImagenRaw="/Users/victorvillegassalabarria/Downloads/Sample_Labels_3D_RAW1.raw";
+    std::string ImagenRaw="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/TEXTODISSERTACAO/Cilamce2024/outputConcatenate.raw";
     TPZVec<TPZFMatrix<double>> VecOfMat=create_raw_Vecmatrix(ImagenRaw, rows, cols, layers);
     
     TPZFMatrix<double> matrix(rows,cols);
@@ -561,6 +561,11 @@ int mainpython(){
     AddDataVTK(output, outfilename1);
     std::cout << "adding ordered data to " << outfilename2 << "\n";
     AddDataVTK(ordered, outfilename2);
-    ordered.getTxtPixelsInObject(5,filen);
-
+//    ordered.getTxtPixelsInObject(5,filen);
+    int topGeom=30;
+    for (int i = 1; i <= topGeom; ++i) {
+        std::string filen="Voxel_cords";
+        std::string fileni = filen + std::to_string(i) + ".txt"; // Correctly concatenate the string
+        ordered.getTxtPixelsInObject(i,fileni);
+        }
 }
