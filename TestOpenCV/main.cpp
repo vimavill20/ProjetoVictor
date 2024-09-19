@@ -12,6 +12,7 @@
 #include "TPZVTKGeoMesh.h"
 #include "pzvec.h"
 #include <gmsh.h>
+#include "TPZVTKGenerator.h"
 #include <fstream>
 #include "TPZMaterial.h"
 #include "TPZDarcyFlow.h"
@@ -195,7 +196,8 @@ int main2D();
 int main2DFracVug();
 int mainDarcy3D ();
 int main (){
-    main2DFracVug();
+    //main2DFracVug();
+    mainDarcy3D();
     return 0;
 }
 //int main(){
@@ -405,14 +407,17 @@ int mainDarcy3D (){
     
     
     TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
-    dim_name_and_physical_tagCoarse[2]["k11"] = 1;
-    dim_name_and_physical_tagCoarse[1]["inlet"] = 2;
-    dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
-    dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
+    dim_name_and_physical_tagCoarse[3]["CuboExterno"] = 1;
+    dim_name_and_physical_tagCoarse[3]["vug"] = 2;
+    dim_name_and_physical_tagCoarse[2]["inlet"] = 3;
+    dim_name_and_physical_tagCoarse[2]["outlet"] = 4;
+    dim_name_and_physical_tagCoarse[2]["noflux"] = 5;
+
     
 //    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestpointslinesap.msh";
-    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/cubo.msh";
-
+    //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/cubo.msh";
+    //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEsmallVuginMesh.msh";
+    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEVug15.msh";
     gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
    
     std::ofstream file3("TestGeoMesh3Dnew.vtk");
@@ -425,21 +430,26 @@ int mainDarcy3D (){
     int dim = 3;
 //    TPZMixedDarcyFlow *matDarcy = new TPZMixedDarcyFlow(matId, dim);
     TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim);
-
+    int matIdvUG=2;
+    TPZDarcyFlow *matVug = new TPZDarcyFlow(matIdvUG, dim);
+    cmesh->InsertMaterialObject(matDarcy);
 //    int dim = 2;
 //    int dim=3;
 //    TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim);
-    
-    cmesh->InsertMaterialObject(matDarcy);
+    matDarcy->SetConstantPermeability(1e6);
+
+    cmesh->InsertMaterialObject(matVug);
+    matVug->SetConstantPermeability(1e-1);
+
     int bc_id=2;
     int bc_typeN = 1;
     int bc_typeD = 0;
     TPZFMatrix<STATE> val1(1,1,0.0);
     TPZVec<STATE> val2(1,0.0);
     
-    int bcinletId = 2;
-    int bcOutletId = 3;
-    int bcNoFlux = 4;
+    int bcinletId = 3;
+    int bcOutletId = 4;
+    int bcNoFlux = 5;
     TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,bcNoFlux,bc_typeN,val1,val2);
     cmesh->InsertMaterialObject(face2);
     
@@ -494,10 +504,23 @@ int mainDarcy3D (){
     int ref =0; // Permite refinar la malla con la solucion obtenida
     std::string file_reservoir("SolVictor.vtk");
 //    std::string file_reservoir("SolVictor3D.vtk");
+    
+    
+    
+    std::set<int> matToProc;
+    matToProc.insert(2);
+    std::string file_reservoir2("VugVictor2.vtk");
+    //Analisys->DefineGraphMesh(3,matToProc,scalnames, file_reservoir2, vtkRes);
+    Analisys->PostProcess(ref, dim);
+    constexpr int vtkRes{0};
+    
+    auto vtk = TPZVTKGenerator(cmesh, matToProc,scalnames,file_reservoir2, vtkRes);
+    
+    vtk.Do();
     Analisys->DefineGraphMesh(dim,scalnames,vecnames,file_reservoir);
     //Posprocesamiento
     Analisys->PostProcess(ref, dim);
- 
+   
     return 0;
 }
 int main2DFracVug(){
