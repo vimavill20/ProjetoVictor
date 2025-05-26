@@ -196,8 +196,8 @@ int main2D();
 int main2DFracVug();
 int mainDarcy3D ();
 int main (){
-    //main2DFracVug();
-    mainDarcy3D();
+    main2DFracVug();
+    //mainDarcy3D();
     return 0;
 }
 //int main(){
@@ -406,6 +406,21 @@ int mainDarcy3D (){
     
     
     
+//    TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
+//    dim_name_and_physical_tagCoarse[3]["CuboExterno"] = 1;
+//    dim_name_and_physical_tagCoarse[3]["vug"] = 2;
+//    dim_name_and_physical_tagCoarse[2]["inlet"] = 3;
+//    dim_name_and_physical_tagCoarse[2]["outlet"] = 4;
+//    dim_name_and_physical_tagCoarse[2]["noflux"] = 5;
+//
+//
+////    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestpointslinesap.msh";
+//    //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/cubo.msh";
+//    //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEsmallVuginMesh.msh";
+//    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEVug15.msh";
+    ///
+    ///codigo original
+    ///
     TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
     dim_name_and_physical_tagCoarse[3]["CuboExterno"] = 1;
     dim_name_and_physical_tagCoarse[3]["vug"] = 2;
@@ -417,7 +432,7 @@ int mainDarcy3D (){
 //    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/Malla2Dtestpointslinesap.msh";
     //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/cubo.msh";
     //std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEsmallVuginMesh.msh";
-    std::string filename="/Users/victorvillegassalabarria/Documents/Mastria/FEM2024/IMAGENES VTK TC/VTK/FilterCompleteRock/outputCoarseDEVug15.msh";
+    std::string filename="/Users/victorvillegassalabarria/python-test/Dissertação/Skeletonize/CTMesh/rock_volume1Vug.msh";
     gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
    
     std::ofstream file3("TestGeoMesh3Dnew.vtk");
@@ -527,17 +542,20 @@ int main2DFracVug(){
       TPZGeoMesh *gmesh = new TPZGeoMesh;
       TPZManVector<std::map<std::string,int>,4> dim_name_and_physical_tagCoarse(4);
       dim_name_and_physical_tagCoarse[2]["k11"] = 1;
-      dim_name_and_physical_tagCoarse[2]["SmallVug"] = 7;
-      dim_name_and_physical_tagCoarse[2]["BigVug"] = 8;
+      //dim_name_and_physical_tagCoarse[2]["SmallVug"] = 7;
+      //dim_name_and_physical_tagCoarse[2]["BigVug"] = 8;
+      dim_name_and_physical_tagCoarse[2]["Vugs"] = 6;
       dim_name_and_physical_tagCoarse[1]["inlet"] = 2;
       dim_name_and_physical_tagCoarse[1]["outlet"] = 3;
       dim_name_and_physical_tagCoarse[1]["noflux"] = 4;
-      dim_name_and_physical_tagCoarse[1]["SmallFract"] = 5;
-      dim_name_and_physical_tagCoarse[1]["BigFract"] = 6;
+      //dim_name_and_physical_tagCoarse[1]["SmallFract"] = 5;
+      //dim_name_and_physical_tagCoarse[1]["BigFract"] = 6;
 
 
       
-      std::string filename="/Users/victorvillegassalabarria/python-test/testskel4.msh";
+      //std::string filename="/Users/victorvillegassalabarria/python-test/testskel4.msh";
+      std::string filename="/Users/victorvillegassalabarria/python-test/testskel30sp.msh";
+
       gmesh = generateGMeshWithPhysTagVec(filename, dim_name_and_physical_tagCoarse);
      
       std::ofstream file3("TestGeoMesh2Dskel.vtk");
@@ -554,15 +572,16 @@ int main2DFracVug(){
     
         TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim2d);
         TPZDarcyFlow *matDarcySmallFract= new TPZDarcyFlow(5,dim1d);
-        TPZDarcyFlow *matDarcyBigFract= new TPZDarcyFlow(6,dim1d);
-        TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(7,dim2d);
-        TPZDarcyFlow *matDarcyBigVug= new TPZDarcyFlow(8,dim2d);
+        //TPZDarcyFlow *matDarcyBigFract= new TPZDarcyFlow(6,dim1d);
+        //TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(7,dim2d);
+        TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(6,dim2d);
+        //TPZDarcyFlow *matDarcyBigVug= new TPZDarcyFlow(8,dim2d);
     
-        matDarcy->SetConstantPermeability(1e6);
-        matDarcySmallVug->SetConstantPermeability(1.0e-5);
-        matDarcyBigVug->SetConstantPermeability(1.0e-5);
-        matDarcySmallFract->SetConstantPermeability(1e10);
-        matDarcyBigFract->SetConstantPermeability(1e10);
+        matDarcy->SetConstantPermeability(0.1);
+        matDarcySmallVug->SetConstantPermeability(1.0);
+        //matDarcyBigVug->SetConstantPermeability(1.0e9);
+        matDarcySmallFract->SetConstantPermeability(1.0);
+        //matDarcyBigFract->SetConstantPermeability(1.0e9);
     int x, y;
 
 //    // Definir una función de permeabilidad como una lambda
@@ -588,7 +607,7 @@ int main2DFracVug(){
 //        return coord[0] * 1e-3;
 //
 //
-    matDarcy->SetPermeabilityFunction(perm_function);
+    //matDarcy->SetPermeabilityFunction(perm_function);
     //Conseguir permeabilidade em um ponto da malha coord(x,y);
     
     TPZVec<REAL> coord(2);
@@ -617,10 +636,10 @@ int main2DFracVug(){
         val2[0]=10; // Valor a ser impuesto como presión en la salida
         TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
         cmesh->InsertMaterialObject(face1);
-        cmesh->InsertMaterialObject(matDarcySmallFract);
-        cmesh->InsertMaterialObject(matDarcyBigFract);
+        //cmesh->InsertMaterialObject(matDarcySmallFract);
+        //cmesh->InsertMaterialObject(matDarcyBigFract);
         cmesh->InsertMaterialObject(matDarcySmallVug);
-        cmesh->InsertMaterialObject(matDarcyBigVug);
+        //cmesh->InsertMaterialObject(matDarcyBigVug);
        
         cmesh->AutoBuild();
         //Esto hace que el espacio de aproxiación sea H1
@@ -641,7 +660,7 @@ int main2DFracVug(){
         TPZStepSolver<STATE> step;
         
     //    TPZSSpStructMatrix<STATE> matrix(cmesh);
-          step.SetDirect(ELDLt);
+        step.SetDirect(ELDLt);
       
     //    Analisys->SetStructuralMatrix(matrix);
         
