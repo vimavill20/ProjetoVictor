@@ -8,7 +8,7 @@ add_executable(TestBinaryImage3D main.cpp)
 # ----- Find PZ. By default searches one directory up -----
 find_package(NeoPZ REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../neopz_install/ ${CMAKE_SOURCE_DIR}/neopz_install/)
 
-find_package(OpenCV REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../opencv_install/ ${CMAKE_SOURCE_DIR}/opencv_install/)
+#find_package(OpenCV REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../opencv_install/ ${CMAKE_SOURCE_DIR}/opencv_install/)
 
 #find_package(Gmsh REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../gmsh_install/ ${CMAKE_SOURCE_DIR}/gmsh_install/)
 
