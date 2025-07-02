@@ -5,8 +5,8 @@
 #include <math.h>
 #include <bitset>
 #include "pzcmesh.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/imgproc/imgproc.hpp>
 #include "pzmanvector.h"
 #include "TPZGeoMeshTools.h"
 #include "TPZCompMeshTools.h"
@@ -24,7 +24,7 @@
 #include "TPZExtendGridDimension.h"
 #include "pzvisualmatrix.h"
 //#include "TestVTK3D.h"
-using namespace cv;
+//using namespace cv;
 using namespace std;
 //FUNCION PARA CREAR UNA MATRIZ DE ARCHIVO BINARIO .RAW
 TPZVec<TPZFMatrix<double>> create_raw_Vecmatrix(std::string rutaArchivo, int filas, int columnas, int layers){
@@ -116,5 +116,6 @@ int main (){
     VisualMatrix3DVTK(VecOfMat, outfilename);
     return 0;
 }
+
 
 
