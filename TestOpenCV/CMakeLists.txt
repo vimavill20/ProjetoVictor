@@ -4,7 +4,11 @@ cmake_minimum_required (VERSION 3.11.0)
 
 #project (MyProject)
 
-add_executable(TestOpenCV main.cpp)
+file(GLOB HEADERS *.h)
+file(GLOB SOURCE *.cpp)
+
+
+add_executable(TestOpenCV main.cpp ${HEADERS} ${SOURCE})
 
 # ----- Find PZ. By default searches one directory up -----
 find_package(NeoPZ REQUIRED HINTS ${CMAKE_SOURCE_DIR}/../neopz_install/ ${CMAKE_SOURCE_DIR}/neopz_install/)
@@ -18,8 +22,12 @@ file(GLOB_RECURSE PZ_SRC
      "../neopz/*.cpp"
      "../NeoPzDevelop/*.h"
      "../NeoPzDevelop/*.cpp"
+          "*.h"
+     "*.cpp"
 )
-#add_custom_target( GlobalFiles SOURCES ${PZ_SRC})
+
+
+#add_custom_target( GlobalFiles SOURCES SOURCE HEADERS ${PZ_SRC})
 
 
 # linking with GMSH
@@ -49,7 +57,7 @@ include_directories(${GMSH_INC})
 
 #target_link_libraries(TestOpenCV PUBLIC NeoPZ::pz ${OpenCV_LIBS})
 
-target_include_directories(TestOpenCV PUBLIC All_Dirs)
+target_include_directories(TestOpenCV PUBLIC All_Dirs HEADERS SOURCE)
 target_link_libraries(TestOpenCV PUBLIC NeoPZ::pz ${OpenCV_LIBS} ${GMSH_LIB})
 
 

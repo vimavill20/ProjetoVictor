@@ -5,8 +5,8 @@
 #include <math.h>
 #include <bitset>
 #include "pzcmesh.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/imgproc/imgproc.hpp>
 #include "pzmanvector.h"
 #include "pzvisualmatrix.h"
 #include "TestVTK3D.h"
