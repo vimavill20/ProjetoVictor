@@ -472,16 +472,16 @@ int main2DFracVug(){
         int dim1d=1;
     
         TPZDarcyFlow *matDarcy = new TPZDarcyFlow(matId, dim2d);
-        TPZDarcyFlow *matDarcySmallFract= new TPZDarcyFlow(5,dim1d);
+//        TPZDarcyFlow *matDarcySmallFract= new TPZDarcyFlow(5,dim1d);
         //TPZDarcyFlow *matDarcyBigFract= new TPZDarcyFlow(6,dim1d);
         //TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(7,dim2d);
         TPZDarcyFlow *matDarcySmallVug= new TPZDarcyFlow(6,dim2d);
         //TPZDarcyFlow *matDarcyBigVug= new TPZDarcyFlow(8,dim2d);
     
-        matDarcy->SetConstantPermeability(0.001);
+        matDarcy->SetConstantPermeability(0.01);
         matDarcySmallVug->SetConstantPermeability(1e9);
         //matDarcyBigVug->SetConstantPermeability(1.0e9);
-        matDarcySmallFract->SetConstantPermeability(1e9);
+//        matDarcySmallFract->SetConstantPermeability(1e9);
         //matDarcyBigFract->SetConstantPermeability(1.0e9);
     int x, y;
 
@@ -658,7 +658,7 @@ int mainMixed(){
       TPZBndCond * face = matDarcy->CreateBC(matDarcy,bcinletId,bc_typeD,val1,val2);
       cmesh_mult->InsertMaterialObject(face);
       
-      val2[0]=100; // Valor a ser impuesto como presión en la salida
+      val2[0]=10; // Valor a ser impuesto como presión en la salida
       TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
       cmesh_mult->InsertMaterialObject(face1);
  
@@ -779,112 +779,114 @@ int mainMixedCT(){
     
   
     // inserta contornos mat 5 / mat 6
-    int ncreated = 0;
-    int nels = gmesh->NElements();
-    
-    
-    for (int iel = 0; iel< nels; iel++) {
-        TPZGeoEl *gel = gmesh->Element(iel);
-        if (!gel){
-            continue;
-        }
-        if (gel->Dimension() != 2) {
-            continue;
-        }
-        int nsides= gel->NSides();
-        int ncorners= gel->NCornerNodes();
-        int firstside= nsides-ncorners-1;
-        
-        
-        for (int iside = firstside; iside<nsides; iside++) {
-            TPZGeoElSide gelside(gel, iside);
-            int matid = gelside.Element()->MaterialId();
-            TPZStack<TPZGeoElSide> allneigh;
-            gelside.AllNeighbours(allneigh);
-            int nneighs = allneigh.size();
-            //verify Dimension
-            int verify =0;
-            
-            for (int ineigh=0; ineigh<nneighs; ineigh++) {
-                TPZGeoEl *gelneigh = allneigh[ineigh].Element();
-                int dimen = gelneigh->Dimension();
-                if (dimen == 1) {
-                    verify = 1;
-                }
-            }
-            if(verify == 1){
-                continue;
-            }
-            
-            for (int ineigh=0; ineigh<nneighs; ineigh++) {
-                TPZGeoEl *gelneigh = allneigh[ineigh].Element();
-                int matNeigh = gelneigh->MaterialId();
-                if (matNeigh != matid && (gel->Dimension() == gelneigh->Dimension()) ) {
-                   gelside.Element()->CreateBCGeoEl(iside, 100);
-                   ncreated++;
-                }
-            }
-        }
-    }
-    
-    std::cout<< "se crearon: " << ncreated << " elements"<<std::endl;
-
-    gmesh->BuildConnectivity();
-    int nels2 = gmesh->NElements();
-    TPZVec<int> verificador(nels2, 0);
-    // creador de contornos por ids
-    int mat=100;
-    for (int iel =nels-1; iel<nels2; iel++) {
-      
-        TPZGeoEl * gel = gmesh->Element(iel);
-        if (gel->MaterialId() ==100) {
-            std::cout<<"ok "<<std::endl;
-        }
-        if (!gel) {
-            continue;
-        }
-        if (gel->Dimension() != 1) {
-            continue;
-        }
-        if (verificador[iel]==1) {
-            continue;
-        }
-        if (gel->MaterialId() != 100) {
-            continue;
-        }
-        int side = 1;
-        
-        TPZGeoElSide gelside(gel, side);
-        
-        TPZStack<TPZGeoElSide> allneigh;
-        gelside.AllNeighbours(allneigh);
-        TPZStack<TPZGeoElSide> allneighdim;
-        findElDim(allneigh, 1, allneighdim);
-        int ntest = allneighdim.size();
-        TPZGeoElSide gelneigh = allneighdim[0];
-        gel->SetMaterialId(mat);
-        while (gel != gelneigh.Element()) {
-            TPZStack<TPZGeoElSide> allneigh;
-            int sidetest = gelneigh.Side();
-            if (sidetest==0) {
-                gelneigh.SetSide(1);
-            }
-            else{
-                gelneigh.SetSide(0);
-            }
-            gelneigh.AllNeighbours(allneigh);
-            TPZStack<TPZGeoElSide> allneighdim;
-            findElDim(allneigh, 1, allneighdim);
-            int indexneig = gelneigh.Element()->Index();
-            verificador[indexneig] =1;
-            gelneigh.Element()->SetMaterialId(mat);
-            gelneigh =allneighdim[0];
-        }
-        
-        
-        mat++;
-        int ok=0;
-    }
+//    int ncreated = 0;
+//    int nels = gmesh->NElements();
+//
+//
+//    for (int iel = 0; iel< nels; iel++) {
+//        TPZGeoEl *gel = gmesh->Element(iel);
+//        if (!gel){
+//            continue;
+//        }
+//        if (gel->Dimension() != 2) {
+//            continue;
+//        }
+//        int nsides= gel->NSides();
+//        int ncorners= gel->NCornerNodes();
+//        int firstside= nsides-ncorners-1;
+//
+//
+//        for (int iside = firstside; iside<nsides; iside++) {
+//            TPZGeoElSide gelside(gel, iside);
+//            int matid = gelside.Element()->MaterialId();
+//            TPZStack<TPZGeoElSide> allneigh;
+//            gelside.AllNeighbours(allneigh);
+////            std::cout<<allneigh[0].Element()<<std::endl;
+//            int nneighs = allneigh.size();
+//            //verify Dimension
+//            int verify =0;
+//
+//            for (int ineigh=0; ineigh<nneighs; ineigh++) {
+//                TPZGeoEl *gelneigh = allneigh[ineigh].Element();
+//                int dimen = gelneigh->Dimension();
+//
+//                if (dimen == 1) {
+//                    verify = 1;
+//                }
+//            }
+//            if(verify == 1){
+//                continue;
+//            }
+//
+//            for (int ineigh=0; ineigh<nneighs; ineigh++) {
+//                TPZGeoEl *gelneigh = allneigh[ineigh].Element();
+//                int matNeigh = gelneigh->MaterialId();
+//                if (matNeigh != matid && (gel->Dimension() == gelneigh->Dimension()) ) {
+//                   gelside.Element()->CreateBCGeoEl(iside, 100);
+//                   ncreated++;
+//                }
+//            }
+//        }
+//    }
+//
+//    std::cout<< "se crearon: " << ncreated << " elements"<<std::endl;
+//
+//    gmesh->BuildConnectivity();
+//    int nels2 = gmesh->NElements();
+//    TPZVec<int> verificador(nels2, 0);
+//    // creador de contornos por ids
+//    int mat=100;
+//    for (int iel =nels-1; iel<nels2; iel++) {
+//
+//        TPZGeoEl * gel = gmesh->Element(iel);
+//        if (gel->MaterialId() ==100) {
+//            std::cout<<"ok "<<std::endl;
+//        }
+//        if (!gel) {
+//            continue;
+//        }
+//        if (gel->Dimension() != 1) {
+//            continue;
+//        }
+//        if (verificador[iel]==1) {
+//            continue;
+//        }
+//        if (gel->MaterialId() != 100) {
+//            continue;
+//        }
+//        int side = 1;
+//
+//        TPZGeoElSide gelside(gel, side);
+//
+//        TPZStack<TPZGeoElSide> allneigh;
+//        gelside.AllNeighbours(allneigh);
+//        TPZStack<TPZGeoElSide> allneighdim;
+//        findElDim(allneigh, 1, allneighdim);
+//        int ntest = allneighdim.size();
+//        TPZGeoElSide gelneigh = allneighdim[0];
+//        gel->SetMaterialId(mat);
+//        while (gel != gelneigh.Element()) {
+//            TPZStack<TPZGeoElSide> allneigh;
+//            int sidetest = gelneigh.Side();
+//            if (sidetest==0) {
+//                gelneigh.SetSide(1);
+//            }
+//            else{
+//                gelneigh.SetSide(0);
+//            }
+//            gelneigh.AllNeighbours(allneigh);
+//            TPZStack<TPZGeoElSide> allneighdim;
+//            findElDim(allneigh, 1, allneighdim);
+//            int indexneig = gelneigh.Element()->Index();
+//            verificador[indexneig] =1;
+//            gelneigh.Element()->SetMaterialId(mat);
+//            gelneigh =allneighdim[0];
+//        }
+//
+//
+//        mat++;
+//        int ok=0;
+//    }
     
     //
     std::ofstream file20("TestGeoMesh2D.vtk");
@@ -902,10 +904,12 @@ int mainMixedCT(){
     TPZMixedDarcyFlow *matDarcy = new TPZMixedDarcyFlow(1,2);
     TPZMixedDarcyFlow *matDarcyVugs= new TPZMixedDarcyFlow(6,2);
 
-    matDarcy->SetConstantPermeability(0.001);
+    matDarcy->SetConstantPermeability(0.01);
     hdivCreator.InsertMaterialObject(matDarcy);
     
-    matDarcyVugs->SetConstantPermeability(1e12);
+    matDarcyVugs->SetConstantPermeability(1e9);
+
+
     hdivCreator.InsertMaterialObject(matDarcyVugs);
     
     int bc_id=2;
@@ -920,30 +924,56 @@ int mainMixedCT(){
 
     //val2[0]=0;
     TPZBndCond * face2 = matDarcy->CreateBC(matDarcy,bcNoFlux,bc_typeN,val1,val2);
+    //auto face2v = matDarcyVugs->CreateBC(matDarcyVugs,bcNoFlux,bc_typeN,val1,val2);
+
     hdivCreator.InsertMaterialObject(face2);
+    //hdivCreator.InsertMaterialObject(face2v);
+
     
-    val2[0]=1000; // Valor a ser impuesto como presión en la entrada
+    val2[0]=100; // Valor a ser impuesto como presión en la entrada
     TPZBndCond * face = matDarcy->CreateBC(matDarcy,bcinletId,bc_typeD,val1,val2);
+    //TPZBndCond * facev = matDarcyVugs->CreateBC(matDarcyVugs,bcinletId,bc_typeD,val1,val2);
+
     hdivCreator.InsertMaterialObject(face);
-    
-    val2[0]=100; // Valor a ser impuesto como presión en la salida
+    //hdivCreator.InsertMaterialObject(facev);
+
+    val2[0]=14; // Valor a ser impuesto como presión en la salida
     TPZBndCond * face1 = matDarcy->CreateBC(matDarcy,bcOutletId,bc_typeD,val1,val2);
+    //TPZBndCond * face1v = matDarcyVugs->CreateBC(matDarcyVugs,bcOutletId,bc_typeD,val1,val2);
+
     hdivCreator.InsertMaterialObject(face1);
-    
+    //hdivCreator.InsertMaterialObject(face1v);
+
     //
-    for (int p=100; p<=190; p++) {
-        val2[0]=50;
-        TPZBndCond *contorno=matDarcy->CreateBC(matDarcy,p,bc_typeD,val1,val2);
-        hdivCreator.InsertMaterialObject(contorno);
-    }
-    
+    //
+//    for (int p=100; p<=190; p++) {
+//        val2[0]=50;
+//        TPZBndCond *contorno=matDarcy->CreateBC(matDarcy,p,bc_typeD,val1,val2);
+//        hdivCreator.InsertMaterialObject(contorno);
+//    }
+    //
     //
     
     int lagmultilevel = 1;
     TPZManVector<TPZCompMesh *, 7> meshvec(hdivCreator.NumMeshes());
     hdivCreator.CreateAtomicMeshes(meshvec, lagmultilevel); // This method increments the lagmultilevel
     TPZMultiphysicsCompMesh *cmesh = nullptr;
+
     hdivCreator.CreateMultiPhysicsMesh(meshvec, lagmultilevel, cmesh);
+//    cmesh->CleanUpUnconnectedNodes();
+//    cmesh->ExpandSolution();
+    cmesh->Reference()->ResetReference();
+    cmesh->LoadReferences();
+
+    for (int iel = 0; iel < cmesh->NElements(); iel++) {
+        auto cel = cmesh->Element(iel);
+        if (!cel) continue;
+
+        if (cel->Material()->Id() == 3) {
+            std::cout << "BC element with ndof = "
+                      << cel->NConnects() << std::endl;
+        }
+    }
 
     TPZLinearAnalysis anMixed(cmesh, RenumType::EMetis);
   #ifdef PZ_USING_MKL
